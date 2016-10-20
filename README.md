@@ -1,5 +1,5 @@
 
-# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity)
+# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/vanity?status.svg)](https://godoc.org/kkn.fi/vanity)
 
 ## Installation
 ```
