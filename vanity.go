@@ -18,7 +18,7 @@ type (
 		// VCSURL is the HTTP URL for project's version control system.
 		VCSURL string
 	}
-	// Server is the an actual HTTP server for Go vanity domains.
+	// Server is the actual HTTP server for Go vanity domains.
 	Server struct {
 		// Domain is the vanity domain.
 		Domain *string
