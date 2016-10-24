@@ -11,7 +11,7 @@ type (
 	// Package defines Go package that has vanity import defined.
 	Package struct {
 		// Path is path component of vanity url.
-		Path string
+		Path Path
 		// VCSSystem is version control system used by the project.
 		// Usually 'git' or 'hg'.
 		VCSSystem string
@@ -30,7 +30,7 @@ type (
 // NewPackage returns a new Package given a path, VCS system and VCS URL.
 func NewPackage(path, vcssystem, vcsurl string) *Package {
 	p := &Package{
-		Path:      path,
+		Path:      Path(path),
 		VCSSystem: vcssystem,
 		VCSURL:    vcsurl,
 	}
