@@ -22,12 +22,12 @@ errcheck:
 	errcheck $(NAME)/...
 
 cover:
-	go test -coverprofile=coverage.out $(NAME)/cmd/vanity
+	go test -coverprofile=coverage.out $(NAME)
 	go tool cover -html=coverage.out
 	@rm -f coverage.out
 
 heat:
-	go test -covermode=count -coverprofile=count.out $(NAME)/cmd/vanity
+	go test -covermode=count -coverprofile=count.out $(NAME)
 	go tool cover -html=count.out
 	@rm -f count.out
 
