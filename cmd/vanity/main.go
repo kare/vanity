@@ -44,7 +44,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := vanity.Server{domainFlag, conf}
+	server := vanity.NewServer(*domainFlag, conf)
 	port := fmt.Sprintf(":%v", *portFlag)
 	log.Fatal(http.ListenAndServe(port, server))
 }
@@ -58,12 +58,8 @@ func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
 		case 0:
 			continue
 		case 3:
-			pack := vanity.Package{
-				Path:      parsePath(fields[0]),
-				VCSSystem: fields[1],
-				VCSURL:    fields[2],
-			}
-			conf[vanity.Path(fields[0])] = pack
+			pack := vanity.NewPackage(parsePath(fields[0]), fields[1], fields[2])
+			conf[vanity.Path(fields[0])] = *pack
 		default:
 			return conf, errors.New("configuration error: " + scanner.Text())
 		}

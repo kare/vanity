@@ -12,18 +12,18 @@ import (
 var (
 	hostname = "kkn.fi"
 	config   = map[Path]Package{
-		"/gist":              {"/gist", "git", "https://github.com/kare/gist"},
-		"/vanity":            {"/vanity", "git", "https://github.com/kare/vanity"},
-		"/vanity/cmd":        {"/vanity", "git", "https://github.com/kare/vanity"},
-		"/vanity/cmd/vanity": {"/vanity", "git", "https://github.com/kare/vanity"},
-		"/foo/bar":           {"/foo", "git", "https://github.com/kare/foo"},
-		"/foo/bar/baz":       {"/foo", "git", "https://github.com/kare/foo"},
-		"/":                  {"/", "git", "https://github.com/project"},
+		"/gist":              *NewPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/vanity":            *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/vanity/cmd":        *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/vanity/cmd/vanity": *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/foo/bar":           *NewPackage("/foo", "git", "https://github.com/kare/foo"),
+		"/foo/bar/baz":       *NewPackage("/foo", "git", "https://github.com/kare/foo"),
+		"/":                  *NewPackage("/", "git", "https://github.com/project"),
 	}
 )
 
 func TestHTTPMethodsSupport(t *testing.T) {
-	server := Server{&hostname, config}
+	server := NewServer(hostname, config)
 	tests := []struct {
 		method string
 		status int
@@ -50,7 +50,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 }
 
 func TestGoTool(t *testing.T) {
-	server := httptest.NewServer(Server{&hostname, config})
+	server := httptest.NewServer(NewServer(hostname, config))
 	defer server.Close()
 
 	tests := []struct {
@@ -95,7 +95,7 @@ func TestGoTool(t *testing.T) {
 }
 
 func TestGoToolPackageNotFound(t *testing.T) {
-	server := httptest.NewServer(Server{&hostname, config})
+	server := httptest.NewServer(NewServer(hostname, config))
 	defer server.Close()
 
 	url := server.URL + "/package-not-found?go-get=1"
@@ -123,7 +123,7 @@ func TestGoToolPackageNotFound(t *testing.T) {
 }
 
 func TestBrowserGoDoc(t *testing.T) {
-	server := httptest.NewServer(Server{&hostname, config})
+	server := httptest.NewServer(NewServer(hostname, config))
 	defer server.Close()
 
 	tests := []struct {

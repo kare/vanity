@@ -27,6 +27,25 @@ type (
 	}
 )
 
+// NewPackage returns a new Package given a path, VCS system and VCS URL.
+func NewPackage(path, vcssystem, vcsurl string) *Package {
+	p := &Package{
+		Path:      path,
+		VCSSystem: vcssystem,
+		VCSURL:    vcsurl,
+	}
+	return p
+}
+
+// NewServer returns a new Vanity Server given domain name and vanity package configuration.
+func NewServer(domain string, config map[Path]Package) *Server {
+	s := &Server{
+		Domain: &domain,
+		Config: config,
+	}
+	return s
+}
+
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != "GET" {

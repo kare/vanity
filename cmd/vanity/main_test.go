@@ -15,10 +15,10 @@ func TestParseConfig(t *testing.T) {
 /vanity/cmd/vanity	git	https://github.com/kare/vanity`
 
 	expected := map[vanity.Path]vanity.Package{
-		"/gist":              {"/gist", "git", "https://github.com/kare/gist"},
-		"/vanity":            {"/vanity", "git", "https://github.com/kare/vanity"},
-		"/vanity/cmd":        {"/vanity", "git", "https://github.com/kare/vanity"},
-		"/vanity/cmd/vanity": {"/vanity", "git", "https://github.com/kare/vanity"},
+		"/gist":              *vanity.NewPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/vanity":            *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/vanity/cmd":        *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/vanity/cmd/vanity": *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
 	}
 	conf, err := readConfig(strings.NewReader(config))
 	if err != nil {
