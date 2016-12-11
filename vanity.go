@@ -47,6 +47,12 @@ func NewServer(domain string, config map[Path]Package) *Server {
 	return s
 }
 
+// GoImportLink creates the link used in HTML <meta/> tag
+// where domain is the domain name of the server.
+func (p Package) GoImportLink(domain string) string {
+	return fmt.Sprintf("%s%s %s %s", domain, p.Path, p.VCSSystem, p.VCSURL)
+}
+
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {
@@ -64,6 +70,6 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	i := fmt.Sprintf("%s%s %s %s", *s.Domain, pack.Path, pack.VCSSystem, pack.VCSURL)
-	fmt.Fprintf(w, `<meta name="go-import" content="%s">`, i)
+	link := pack.GoImportLink(*s.Domain)
+	fmt.Fprintf(w, `<meta name="go-import" content="%s">`, link)
 }
