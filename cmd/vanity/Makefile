@@ -1,10 +1,13 @@
 
 NAME := kkn.fi/vanity/cmd/vanity
 
-.PHONY: build clean test vet lint errcheck cover heat check dist
+.PHONY: build install clean test vet lint errcheck cover heat check dist
 
 build:
 	go build $(NAME)/...
+
+install:
+	go install $(NAME)
 
 clean:
 	@rm -rf vanity
