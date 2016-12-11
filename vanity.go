@@ -6,9 +6,10 @@ import (
 )
 
 type (
-	// Path is the path component of the request sent by Go tool or browser.
+	// Path is the path component of the HTTP request sent by Go tool or browser.
 	Path string
-	// Package defines Go package that has vanity import defined.
+	// Package defines Go package that has vanity import defined by Path,
+	// VCS system type and VCS URL.
 	Package struct {
 		// Path is path component of vanity url.
 		Path Path
