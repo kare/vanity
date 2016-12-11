@@ -28,13 +28,13 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		method string
 		status int
 	}{
-		{"GET", 200},
-		{"HEAD", 405},
-		{"POST", 405},
-		{"PUT", 405},
-		{"DELETE", 405},
-		{"TRACE", 405},
-		{"OPTIONS", 405},
+		{http.MethodGet, http.StatusOK},
+		{http.MethodHead, http.StatusMethodNotAllowed},
+		{http.MethodPost, http.StatusMethodNotAllowed},
+		{http.MethodPut, http.StatusMethodNotAllowed},
+		{http.MethodDelete, http.StatusMethodNotAllowed},
+		{http.MethodTrace, http.StatusMethodNotAllowed},
+		{http.MethodOptions, http.StatusMethodNotAllowed},
 	}
 	for _, test := range tests {
 		req, err := http.NewRequest(test.method, "/gist?go-get=1", nil)
@@ -168,6 +168,5 @@ func TestBrowserGoDoc(t *testing.T) {
 		if contentType != expected {
 			t.Fatalf("Expecting content type '%v', but got '%v'", expected, contentType)
 		}
-
 	}
 }
