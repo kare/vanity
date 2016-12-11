@@ -54,7 +54,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conf, ok := s.Config[Path(r.URL.Path)]
+	pack, ok := s.Config[Path(r.URL.Path)]
 	if !ok {
 		http.NotFound(w, r)
 		return
@@ -64,6 +64,6 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	i := fmt.Sprintf("%s%s %s %s", *s.Domain, conf.Path, conf.VCSSystem, conf.VCSURL)
+	i := fmt.Sprintf("%s%s %s %s", *s.Domain, pack.Path, pack.VCSSystem, pack.VCSURL)
 	fmt.Fprintf(w, `<meta name="go-import" content="%s">`, i)
 }
