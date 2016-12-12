@@ -47,6 +47,11 @@ func NewServer(domain string, config map[Path]Package) *Server {
 	return s
 }
 
+// GoDocURL returns the HTTP URL to godoc.org.
+func (p Package) GoDocURL(domain, path string) string {
+	return fmt.Sprintf("https://godoc.org/%v%v", domain, path)
+}
+
 // GoImportLink creates the link used in HTML <meta/> tag
 // where domain is the domain name of the server.
 func (p Package) GoImportLink(domain string) string {
@@ -72,7 +77,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.FormValue("go-get") != "1" {
-		url := fmt.Sprintf("https://godoc.org/%v%v", *s.Domain, r.URL.Path)
+		url := pack.GoDocURL(*s.Domain, r.URL.Path)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
