@@ -8,16 +8,22 @@ import (
 type (
 	// Path is the path component of the HTTP request sent by Go tool or browser.
 	Path string
+	// VCS is the Version Control System used by the Go project.
+	VCS struct {
+		// System defines which version control system is used.
+		// Usually git or hg.
+		System string
+		// VCSURL is the HTTPS URL for project's version control system.
+		// Usually github.com or bitbucket.org address.
+		URL string
+	}
 	// Package defines Go package that has vanity import defined by Path,
 	// VCS system type and VCS URL.
 	Package struct {
 		// Path is path component of vanity url.
-		Path Path
-		// VCSSystem is version control system used by the project.
-		// Usually 'git' or 'hg'.
-		VCSSystem string
-		// VCSURL is the HTTP URL for project's version control system.
-		VCSURL string
+		Path *Path
+		// VCS is version control system used by the project.
+		VCS *VCS
 	}
 	// Server is the actual HTTP server for Go vanity domains.
 	Server struct {
@@ -28,12 +34,24 @@ type (
 	}
 )
 
-// NewPackage returns a new Package given a path, VCS system and VCS URL.
-func NewPackage(path, vcssystem, vcsurl string) *Package {
+func NewPath(path string) *Path {
+	p := Path(path)
+	return &p
+}
+
+func NewVCS(system, url string) *VCS {
+	v := &VCS{
+		System: system,
+		URL:    url,
+	}
+	return v
+}
+
+// NewPackage returns a new Package given a path and VCS.
+func NewPackage(path *Path, vcs *VCS) *Package {
 	p := &Package{
-		Path:      Path(path),
-		VCSSystem: vcssystem,
-		VCSURL:    vcsurl,
+		Path: path,
+		VCS:  vcs,
 	}
 	return p
 }
@@ -47,6 +65,11 @@ func NewServer(domain string, config map[Path]Package) *Server {
 	return s
 }
 
+// GoMetaContent creates a value from the <meta/> tag content attribute.
+func (v VCS) GoMetaContent() string {
+	return fmt.Sprintf("%v %v", v.System, v.URL)
+}
+
 // GoDocURL returns the HTTP URL to godoc.org.
 func (p Package) GoDocURL(domain, path string) string {
 	return fmt.Sprintf("https://godoc.org/%v%v", domain, path)
@@ -55,7 +78,7 @@ func (p Package) GoDocURL(domain, path string) string {
 // GoImportLink creates the link used in HTML <meta/> tag
 // where domain is the domain name of the server.
 func (p Package) GoImportLink(domain string) string {
-	return fmt.Sprintf("%s%s %s %s", domain, p.Path, p.VCSSystem, p.VCSURL)
+	return fmt.Sprintf("%v%v %v", domain, *p.Path, p.VCS.GoMetaContent())
 }
 
 // GoImportMeta creates the <meta/> HTML tag containing name and content attributes.
@@ -64,6 +87,7 @@ func (p Package) GoImportMeta(domain string) string {
 	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
 }
 
+// ServerHTTP is a HTTP Handler for Go vanity domain.
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {

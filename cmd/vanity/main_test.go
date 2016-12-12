@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -15,10 +16,10 @@ func TestParseConfig(t *testing.T) {
 /vanity/cmd/vanity	git	https://github.com/kare/vanity`
 
 	expected := map[vanity.Path]vanity.Package{
-		"/gist":              *vanity.NewPackage("/gist", "git", "https://github.com/kare/gist"),
-		"/vanity":            *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
-		"/vanity/cmd":        *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
-		"/vanity/cmd/vanity": *vanity.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+		"/gist":              *vanity.NewPackage(vanity.NewPath("/gist"), vanity.NewVCS("git", "https://github.com/kare/gist")),
+		"/vanity":            *vanity.NewPackage(vanity.NewPath("/vanity"), vanity.NewVCS("git", "https://github.com/kare/vanity")),
+		"/vanity/cmd":        *vanity.NewPackage(vanity.NewPath("/vanity"), vanity.NewVCS("git", "https://github.com/kare/vanity")),
+		"/vanity/cmd/vanity": *vanity.NewPackage(vanity.NewPath("/vanity"), vanity.NewVCS("git", "https://github.com/kare/vanity")),
 	}
 	conf, err := readConfig(strings.NewReader(config))
 	if err != nil {
@@ -28,7 +29,7 @@ func TestParseConfig(t *testing.T) {
 		t.Fatalf("expecting config for %v packages, but got %v", 4, len(conf))
 	}
 	for p, c := range expected {
-		if c != conf[p] {
+		if !reflect.DeepEqual(c, conf[p]) {
 			t.Fatalf("expected %v but got %v", c, conf[p])
 		}
 	}

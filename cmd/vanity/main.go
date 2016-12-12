@@ -58,7 +58,9 @@ func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
 		case 0:
 			continue
 		case 3:
-			pack := vanity.NewPackage(parsePath(fields[0]), fields[1], fields[2])
+			path := parsePath(fields[0])
+			vcs := vanity.NewVCS(fields[1], fields[2])
+			pack := vanity.NewPackage(path, vcs)
 			conf[vanity.Path(fields[0])] = *pack
 		default:
 			return conf, errors.New("configuration error: " + scanner.Text())
@@ -67,10 +69,10 @@ func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
 	return conf, nil
 }
 
-func parsePath(p string) string {
+func parsePath(p string) *vanity.Path {
 	c := strings.Index(p[1:], "/")
 	if c == -1 {
-		return p
+		return vanity.NewPath(p)
 	}
-	return p[:c+1]
+	return vanity.NewPath(p[:c+1])
 }

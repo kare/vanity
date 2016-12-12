@@ -12,13 +12,13 @@ import (
 var (
 	hostname = "kkn.fi"
 	config   = map[Path]Package{
-		"/gist":              *NewPackage("/gist", "git", "https://github.com/kare/gist"),
-		"/vanity":            *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
-		"/vanity/cmd":        *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
-		"/vanity/cmd/vanity": *NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
-		"/foo/bar":           *NewPackage("/foo", "git", "https://github.com/kare/foo"),
-		"/foo/bar/baz":       *NewPackage("/foo", "git", "https://github.com/kare/foo"),
-		"/":                  *NewPackage("/", "git", "https://github.com/project"),
+		"/gist":              *NewPackage(NewPath("/gist"), NewVCS("git", "https://github.com/kare/gist")),
+		"/vanity":            *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
+		"/vanity/cmd":        *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
+		"/vanity/cmd/vanity": *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
+		"/foo/bar":           *NewPackage(NewPath("/foo"), NewVCS("git", "https://github.com/kare/foo")),
+		"/foo/bar/baz":       *NewPackage(NewPath("/foo"), NewVCS("git", "https://github.com/kare/foo")),
+		"/":                  *NewPackage(NewPath("/"), NewVCS("git", "https://github.com/project")),
 	}
 )
 
