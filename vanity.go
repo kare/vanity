@@ -53,6 +53,12 @@ func (p Package) GoImportLink(domain string) string {
 	return fmt.Sprintf("%s%s %s %s", domain, p.Path, p.VCSSystem, p.VCSURL)
 }
 
+// GoImportMeta creates the <meta/> HTML tag containing name and content attributes.
+func (p Package) GoImportMeta(domain string) string {
+	link := p.GoImportLink(domain)
+	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
+}
+
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {
@@ -70,6 +76,5 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	link := pack.GoImportLink(*s.Domain)
-	fmt.Fprintf(w, `<meta name="go-import" content="%s">`, link)
+	fmt.Fprint(w, pack.GoImportMeta(*s.Domain))
 }
