@@ -67,7 +67,8 @@ func (p Package) GoImportMeta(domain string) string {
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		status := http.StatusMethodNotAllowed
+		http.Error(w, http.StatusText(status), status)
 		return
 	}
 
