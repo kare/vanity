@@ -22,7 +22,7 @@ type (
 	// Server is the actual HTTP server for Go vanity domains.
 	Server struct {
 		// Domain is the vanity domain.
-		Domain *string
+		Domain string
 		// Config contains settings for vanity packages.
 		Config map[Path]Package
 	}
@@ -41,7 +41,7 @@ func NewPackage(path, vcssystem, vcsurl string) *Package {
 // NewServer returns a new Vanity Server given domain name and vanity package configuration.
 func NewServer(domain string, config map[Path]Package) *Server {
 	s := &Server{
-		Domain: &domain,
+		Domain: domain,
 		Config: config,
 	}
 	return s
@@ -77,9 +77,9 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.FormValue("go-get") != "1" {
-		url := pack.GoDocURL(*s.Domain, r.URL.Path)
+		url := pack.GoDocURL(s.Domain, r.URL.Path)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Fprint(w, pack.GoImportMeta(*s.Domain))
+	fmt.Fprint(w, pack.GoImportMeta(s.Domain))
 }
