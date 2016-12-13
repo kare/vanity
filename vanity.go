@@ -58,7 +58,8 @@ func NewPackage(path *Path, vcs *VCS) *Package {
 	return p
 }
 
-// NewServer returns a new Vanity Server given domain name and vanity package configuration.
+// NewServer returns a new Vanity Server given domain name and
+// vanity package configuration.
 func NewServer(domain string, config map[Path]Package) *Server {
 	s := &Server{
 		Domain: domain,
@@ -89,7 +90,7 @@ func (p Package) goImportMeta(domain string) string {
 	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
 }
 
-// ServerHTTP is a HTTP Handler for Go vanity domain.
+// ServeHTTP is an HTTP Handler for Go vanity domain.
 func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {
