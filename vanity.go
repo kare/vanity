@@ -34,11 +34,13 @@ type (
 	}
 )
 
+// NewPath creates a new Path given path.
 func NewPath(path string) *Path {
 	p := Path(path)
 	return &p
 }
 
+// NewVCS creates a new VCS base on system and url.
 func NewVCS(system, url string) *VCS {
 	v := &VCS{
 		System: system,
@@ -65,25 +67,25 @@ func NewServer(domain string, config map[Path]Package) *Server {
 	return s
 }
 
-// GoMetaContent creates a value from the <meta/> tag content attribute.
-func (v VCS) GoMetaContent() string {
+// goMetaContent creates a value from the <meta/> tag content attribute.
+func (v VCS) goMetaContent() string {
 	return fmt.Sprintf("%v %v", v.System, v.URL)
 }
 
-// GoDocURL returns the HTTP URL to godoc.org.
-func (p Package) GoDocURL(domain, path string) string {
+// goDocURL returns the HTTP URL to godoc.org.
+func (p Package) goDocURL(domain, path string) string {
 	return fmt.Sprintf("https://godoc.org/%v%v", domain, path)
 }
 
-// GoImportLink creates the link used in HTML <meta/> tag
+// goImportLink creates the link used in HTML <meta/> tag
 // where domain is the domain name of the server.
-func (p Package) GoImportLink(domain string) string {
-	return fmt.Sprintf("%v%v %v", domain, *p.Path, p.VCS.GoMetaContent())
+func (p Package) goImportLink(domain string) string {
+	return fmt.Sprintf("%v%v %v", domain, *p.Path, p.VCS.goMetaContent())
 }
 
-// GoImportMeta creates the <meta/> HTML tag containing name and content attributes.
-func (p Package) GoImportMeta(domain string) string {
-	link := p.GoImportLink(domain)
+// goImportMeta creates the <meta/> HTML tag containing name and content attributes.
+func (p Package) goImportMeta(domain string) string {
+	link := p.goImportLink(domain)
 	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
 }
 
@@ -102,9 +104,9 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.FormValue("go-get") != "1" {
-		url := pack.GoDocURL(s.Domain, r.URL.Path)
+		url := pack.goDocURL(s.Domain, r.URL.Path)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Fprint(w, pack.GoImportMeta(s.Domain))
+	fmt.Fprint(w, pack.goImportMeta(s.Domain))
 }
