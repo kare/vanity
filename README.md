@@ -1,5 +1,5 @@
 
-# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/vanity?status.svg)](https://godoc.org/kkn.fi/vanity) [![Go Report Card](https://goreportcard.com/badge/kkn.fi/cmd/vanity)](https://goreportcard.com/report/kkn.fi/cmd/vanity/)
+# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/vanity?status.svg)](https://godoc.org/kkn.fi/vanity)
 
 ## Features
 - Redirects browsers to godoc.org
