@@ -57,10 +57,6 @@ func NewVCS(system, url string) *VCS {
 	return v
 }
 
-func (v VCS) String() string {
-	return fmt.Sprintf("VCS{%v, %v}", v.System, v.URL)
-}
-
 // NewPackage returns a new Package given a path and VCS.
 func NewPackage(path string, vcs *VCS) *Package {
 	p := &Package{
@@ -68,10 +64,6 @@ func NewPackage(path string, vcs *VCS) *Package {
 		VCS:  vcs,
 	}
 	return p
-}
-
-func (p Package) String() string {
-	return fmt.Sprintf("Package{%v, %v}", p.Name, p.VCS)
 }
 
 // NewServer returns a new Vanity Server given domain name and
