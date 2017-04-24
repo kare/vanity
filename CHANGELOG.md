@@ -2,7 +2,10 @@
 # Change Log
 
 ## Unreleased
-- TODO
+- Rework internal structure
+- Rename main to kkn.fi/cmd/vanity
+- Rename vanity package to kkn.fi/cmd/vanity/internal
+- Replace vanity.Path with string
 
 ## Release v0.1.0 - 2016-12-12
 ### Added
