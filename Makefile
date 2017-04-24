@@ -1,5 +1,5 @@
 
-NAME := kkn.fi/vanity
+NAME := kkn.fi/cmd/vanity
 
 .PHONY: build test vet lint errcheck cover heat check
 

@@ -7,7 +7,7 @@
 
 ## Installation
 ```
-go get kkn.fi/vanity/cmd/vanity
+go get kkn.fi/cmd/vanity
 ```
 
 ## Configuration

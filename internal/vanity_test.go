@@ -1,8 +1,7 @@
-package vanity
+package internal
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,16 +10,18 @@ import (
 
 var (
 	hostname = "kkn.fi"
-	config   = map[Path]Package{
-		"/gist":              *NewPackage(NewPath("/gist"), NewVCS("git", "https://github.com/kare/gist")),
-		"/vanity":            *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
-		"/vanity/cmd":        *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
-		"/vanity/cmd/vanity": *NewPackage(NewPath("/vanity"), NewVCS("git", "https://github.com/kare/vanity")),
-		"/foo/bar":           *NewPackage(NewPath("/foo"), NewVCS("git", "https://github.com/kare/foo")),
-		"/foo/bar/baz":       *NewPackage(NewPath("/foo"), NewVCS("git", "https://github.com/kare/foo")),
-		"/":                  *NewPackage(NewPath("/"), NewVCS("git", "https://github.com/project")),
+	config   = []*Package{
+		NewPackage("kkn.fi/gist", NewVCS("git", "https://github.com/kare/gist")),
+		NewPackage("kkn.fi/vanity", NewVCS("git", "https://github.com/kare/vanity")),
 	}
 )
+
+func TestPackage(t *testing.T) {
+	p := NewPackage("kkn.fi/gist", NewVCS("git", "https://github.com/kare/gist"))
+	if p.name() != "gist" {
+		t.Errorf("expected 'gist', got %v", p.name())
+	}
+}
 
 func TestHTTPMethodsSupport(t *testing.T) {
 	server := NewServer(hostname, config)
@@ -59,8 +60,6 @@ func TestGoTool(t *testing.T) {
 	}{
 		{"/gist?go-get=1", "kkn.fi/gist git https://github.com/kare/gist"},
 		{"/vanity?go-get=1", "kkn.fi/vanity git https://github.com/kare/vanity"},
-		{"/foo/bar?go-get=1", "kkn.fi/foo git https://github.com/kare/foo"},
-		{"/foo/bar/baz?go-get=1", "kkn.fi/foo git https://github.com/kare/foo"},
 	}
 	for _, test := range tests {
 		url := server.URL + test.path
@@ -80,7 +79,7 @@ func TestGoTool(t *testing.T) {
 
 		expected := `<meta name="go-import" content="` + test.result + `">`
 		if !strings.Contains(string(body), expected) {
-			log.Fatalf("Expecting body to contain html meta tag: '%v', but got:\n'%v'", expected, string(body))
+			t.Fatalf("Expecting url '%v' body to contain html meta tag: '%v', but got:\n'%v'", url, expected, string(body))
 		}
 
 		expected = "text/html; charset=utf-8"
@@ -132,10 +131,6 @@ func TestBrowserGoDoc(t *testing.T) {
 	}{
 		{"/gist", "https://godoc.org/kkn.fi/gist"},
 		{"/vanity", "https://godoc.org/kkn.fi/vanity"},
-		{"/vanity/cmd", "https://godoc.org/kkn.fi/vanity/cmd"},
-		{"/vanity/cmd/vanity", "https://godoc.org/kkn.fi/vanity/cmd/vanity"},
-		{"/foo/bar", "https://godoc.org/kkn.fi/foo/bar"},
-		{"/foo/bar/baz", "https://godoc.org/kkn.fi/foo/bar/baz"},
 	}
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

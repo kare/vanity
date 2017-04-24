@@ -1,4 +1,4 @@
-package main // import "kkn.fi/vanity/cmd/vanity"
+package main // import "kkn.fi/cmd/vanity"
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"kkn.fi/vanity"
+	"kkn.fi/cmd/vanity/internal"
 )
 
 var (
@@ -44,13 +44,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := vanity.NewServer(*domainFlag, conf)
+	server := internal.NewServer(*domainFlag, conf)
 	port := fmt.Sprintf(":%v", *portFlag)
 	log.Fatal(http.ListenAndServe(port, server))
 }
 
-func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
-	conf := make(map[vanity.Path]vanity.Package, 0)
+func readConfig(r io.Reader) ([]*internal.Package, error) {
+	conf := make([]*internal.Package, 0)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
@@ -59,9 +59,9 @@ func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
 			continue
 		case 3:
 			path := parsePath(fields[0])
-			vcs := vanity.NewVCS(fields[1], fields[2])
-			pack := vanity.NewPackage(path, vcs)
-			conf[vanity.Path(fields[0])] = *pack
+			vcs := internal.NewVCS(fields[1], fields[2])
+			pack := internal.NewPackage(path, vcs)
+			conf = append(conf, pack)
 		default:
 			return conf, errors.New("configuration error: " + scanner.Text())
 		}
@@ -69,10 +69,10 @@ func readConfig(r io.Reader) (map[vanity.Path]vanity.Package, error) {
 	return conf, nil
 }
 
-func parsePath(p string) *vanity.Path {
+func parsePath(p string) string {
 	c := strings.Index(p[1:], "/")
 	if c == -1 {
-		return vanity.NewPath(p)
+		return p
 	}
-	return vanity.NewPath(p[:c+1])
+	return p[:c+1]
 }
