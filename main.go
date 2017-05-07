@@ -23,7 +23,6 @@ var (
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: vanity -d domain -c vanity.conf [-p 80]\n")
 	flag.PrintDefaults()
-	os.Exit(2)
 }
 
 func main() {
@@ -34,6 +33,7 @@ func main() {
 
 	if *domainFlag == "" || *confFlag == "" {
 		usage()
+		os.Exit(2)
 	}
 
 	c, err := os.Open(*confFlag)
@@ -49,8 +49,8 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, server))
 }
 
-func readConfig(r io.Reader) ([]*internal.Package, error) {
-	conf := make([]*internal.Package, 0)
+func readConfig(r io.Reader) (map[string]*internal.Package, error) {
+	conf := make(map[string]*internal.Package)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
@@ -58,21 +58,12 @@ func readConfig(r io.Reader) ([]*internal.Package, error) {
 		case 0:
 			continue
 		case 3:
-			path := parsePath(fields[0])
-			vcs := internal.NewVCS(fields[1], fields[2])
-			pack := internal.NewPackage(path, vcs)
-			conf = append(conf, pack)
+			path := fields[0]
+			pack := internal.NewPackage(path, fields[1], fields[2])
+			conf[path] = pack
 		default:
 			return conf, errors.New("configuration error: " + scanner.Text())
 		}
 	}
 	return conf, nil
-}
-
-func parsePath(p string) string {
-	c := strings.Index(p[1:], "/")
-	if c == -1 {
-		return p
-	}
-	return p[:c+1]
 }

@@ -10,11 +10,11 @@ import (
 
 var (
 	hostname = "kkn.fi"
-	config   = []*Package{
-		NewPackage("kkn.fi/gist", "git", "https://github.com/kare/gist"),
-		NewPackage("kkn.fi/set", "git", "https://github.com/kare/set"),
-		NewPackage("kkn.fi/cmd/vanity", "git", "https://github.com/kare/vanity"),
-		NewPackage("kkn.fi/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy"),
+	config   = map[string]*Package{
+		"/gist":         NewPackage("kkn.fi/gist", "git", "https://github.com/kare/gist"),
+		"/set":          NewPackage("kkn.fi/set", "git", "https://github.com/kare/set"),
+		"/cmd/vanity":   NewPackage("kkn.fi/cmd/vanity", "git", "https://github.com/kare/vanity"),
+		"/cmd/tcpproxy": NewPackage("kkn.fi/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy"),
 	}
 )
 
@@ -23,9 +23,9 @@ func TestPackage(t *testing.T) {
 	if p.name() != "gist" {
 		t.Errorf("expected 'gist', got %v", p.name())
 	}
-	p = NewPackage("kkn.fi/cmd/gist", "git", "https://github.com/kare/gist")
-	if p.name() != "cmd/gist" {
-		t.Errorf("expected 'cmd/gist', got %v", p.name())
+	p = NewPackage("kkn.fi/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy")
+	if p.name() != "cmd/tcpproxy" {
+		t.Errorf("expected 'cmd/tcpproxy', got %v", p.name())
 	}
 }
 

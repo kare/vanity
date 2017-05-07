@@ -22,6 +22,7 @@ type (
 		Domain string
 		// Packages contains settings for vanity packages.
 		Packages []*Package
+		packages map[string]*Package
 	}
 )
 
@@ -45,12 +46,11 @@ func NewPackage(path, vcs, url string) *Package {
 
 // NewServer returns a new Vanity Server given domain name and
 // vanity package configuration.
-func NewServer(domain string, config []*Package) *Server {
-	s := &Server{
+func NewServer(domain string, config map[string]*Package) *Server {
+	return &Server{
 		Domain:   domain,
-		Packages: config,
+		packages: config,
 	}
-	return s
 }
 
 // goMetaContent creates a value from the <meta/> tag content attribute.
@@ -66,8 +66,7 @@ func (p Package) goDocURL() string {
 // goImportLink creates the link used in HTML <meta/> tag
 // where domain is the domain name of the server.
 func (p Package) goImportLink(domain string) string {
-	path := p.name()
-	return fmt.Sprintf("%v/%v %v", domain, path, p.goMetaContent())
+	return fmt.Sprintf("%v/%v %v", domain, p.name(), p.goMetaContent())
 }
 
 // goImportMeta creates the <meta/> HTML tag containing name and content attributes.
@@ -77,12 +76,11 @@ func (p Package) goImportMeta(domain string) string {
 }
 
 func (s Server) find(path string) *Package {
-	for _, p := range s.Packages {
-		if p.Name == s.Domain+path {
-			return p
-		}
+	p, ok := s.packages[path]
+	if !ok {
+		return nil
 	}
-	return nil
+	return p
 }
 
 // ServeHTTP is an HTTP Handler for Go vanity domain.

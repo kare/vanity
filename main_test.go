@@ -13,9 +13,9 @@ func TestParseConfig(t *testing.T) {
 
 /vanity	git	https://github.com/kare/vanity
 `
-	expected := []*internal.Package{
-		internal.NewPackage("/gist", internal.NewVCS("git", "https://github.com/kare/gist")),
-		internal.NewPackage("/vanity", internal.NewVCS("git", "https://github.com/kare/vanity")),
+	expected := map[string]*internal.Package{
+		"/gist":   internal.NewPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/vanity": internal.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
 	}
 	packages, err := readConfig(strings.NewReader(config))
 	if err != nil {
@@ -24,9 +24,9 @@ func TestParseConfig(t *testing.T) {
 	if len(packages) != 2 {
 		t.Fatalf("expecting config for %v packages, but got %v", 4, len(packages))
 	}
-	for i, pack := range expected {
-		if !reflect.DeepEqual(pack, packages[i]) {
-			t.Fatalf("expected %v but got %v", pack, packages[i])
+	for key, pack := range expected {
+		if !reflect.DeepEqual(pack, packages[key]) {
+			t.Fatalf("expected %v but got %v", pack, packages[key])
 		}
 	}
 }
