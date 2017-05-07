@@ -30,3 +30,5 @@ heat:
 
 check: vet lint errcheck test heat
 
+plan9:
+	GOOS=plan9 GOARCH=amd64 go build

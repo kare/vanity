@@ -11,15 +11,21 @@ import (
 var (
 	hostname = "kkn.fi"
 	config   = []*Package{
-		NewPackage("kkn.fi/gist", NewVCS("git", "https://github.com/kare/gist")),
-		NewPackage("kkn.fi/vanity", NewVCS("git", "https://github.com/kare/vanity")),
+		NewPackage("kkn.fi/gist", "git", "https://github.com/kare/gist"),
+		NewPackage("kkn.fi/set", "git", "https://github.com/kare/set"),
+		NewPackage("kkn.fi/cmd/vanity", "git", "https://github.com/kare/vanity"),
+		NewPackage("kkn.fi/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy"),
 	}
 )
 
 func TestPackage(t *testing.T) {
-	p := NewPackage("kkn.fi/gist", NewVCS("git", "https://github.com/kare/gist"))
+	p := NewPackage("kkn.fi/gist", "git", "https://github.com/kare/gist")
 	if p.name() != "gist" {
 		t.Errorf("expected 'gist', got %v", p.name())
+	}
+	p = NewPackage("kkn.fi/cmd/gist", "git", "https://github.com/kare/gist")
+	if p.name() != "cmd/gist" {
+		t.Errorf("expected 'cmd/gist', got %v", p.name())
 	}
 }
 
@@ -59,7 +65,9 @@ func TestGoTool(t *testing.T) {
 		result string
 	}{
 		{"/gist?go-get=1", "kkn.fi/gist git https://github.com/kare/gist"},
-		{"/vanity?go-get=1", "kkn.fi/vanity git https://github.com/kare/vanity"},
+		{"/set?go-get=1", "kkn.fi/set git https://github.com/kare/set"},
+		{"/cmd/vanity?go-get=1", "kkn.fi/cmd/vanity git https://github.com/kare/vanity"},
+		{"/cmd/tcpproxy?go-get=1", "kkn.fi/cmd/tcpproxy git https://github.com/kare/tcpproxy"},
 	}
 	for _, test := range tests {
 		url := server.URL + test.path
@@ -130,7 +138,9 @@ func TestBrowserGoDoc(t *testing.T) {
 		result string
 	}{
 		{"/gist", "https://godoc.org/kkn.fi/gist"},
-		{"/vanity", "https://godoc.org/kkn.fi/vanity"},
+		{"/set", "https://godoc.org/kkn.fi/set"},
+		{"/cmd/vanity", "https://godoc.org/kkn.fi/cmd/vanity"},
+		{"/cmd/tcpproxy", "https://godoc.org/kkn.fi/cmd/tcpproxy"},
 	}
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

@@ -7,22 +7,14 @@ import (
 )
 
 type (
-	// VCS is the Version Control System used by the Go project.
-	VCS struct {
-		// System defines which version control system is used.
-		// Usually git or hg.
-		System string
-		// VCSURL is the HTTPS URL for project's version control system.
-		// Usually github.com or bitbucket.org address.
-		URL string
-	}
 	// Package defines Go package that has vanity import defined by Path,
 	// VCS system type and VCS URL.
 	Package struct {
 		// Name is the name of the Go package.
 		Name string
 		// VCS is version control system used by the project.
-		VCS *VCS
+		VCS string
+		URL string
 	}
 	// Server is the actual HTTP server for Go vanity domains.
 	Server struct {
@@ -39,31 +31,16 @@ func (p Package) name() string {
 	if c == -1 {
 		return path
 	}
-	path = path[c+1:]
-	c = strings.Index(path, "/")
-	if c == -1 {
-		return path
-	}
-	return path[:c]
-
-}
-
-// NewVCS creates a new VCS base on system and url.
-func NewVCS(system, url string) *VCS {
-	v := &VCS{
-		System: system,
-		URL:    url,
-	}
-	return v
+	return path[c+1:]
 }
 
 // NewPackage returns a new Package given a path and VCS.
-func NewPackage(path string, vcs *VCS) *Package {
-	p := &Package{
+func NewPackage(path, vcs, url string) *Package {
+	return &Package{
 		Name: path,
 		VCS:  vcs,
+		URL:  url,
 	}
-	return p
 }
 
 // NewServer returns a new Vanity Server given domain name and
@@ -77,8 +54,8 @@ func NewServer(domain string, config []*Package) *Server {
 }
 
 // goMetaContent creates a value from the <meta/> tag content attribute.
-func (v VCS) goMetaContent() string {
-	return fmt.Sprintf("%v %v", v.System, v.URL)
+func (p Package) goMetaContent() string {
+	return fmt.Sprintf("%v %v", p.VCS, p.URL)
 }
 
 // goDocURL returns the HTTP URL to godoc.org.
@@ -90,7 +67,7 @@ func (p Package) goDocURL() string {
 // where domain is the domain name of the server.
 func (p Package) goImportLink(domain string) string {
 	path := p.name()
-	return fmt.Sprintf("%v/%v %v", domain, path, p.VCS.goMetaContent())
+	return fmt.Sprintf("%v/%v %v", domain, path, p.goMetaContent())
 }
 
 // goImportMeta creates the <meta/> HTML tag containing name and content attributes.
