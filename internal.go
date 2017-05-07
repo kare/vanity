@@ -1,4 +1,4 @@
-package internal // import "kkn.fi/cmd/vanity/internal"
+package main // import "kkn.fi/cmd/vanity"
 
 import (
 	"fmt"

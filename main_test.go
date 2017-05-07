@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"kkn.fi/cmd/vanity/internal"
 )
 
 func TestParseConfig(t *testing.T) {
@@ -13,9 +11,9 @@ func TestParseConfig(t *testing.T) {
 
 /vanity	git	https://github.com/kare/vanity
 `
-	expected := map[string]*internal.Package{
-		"/gist":   internal.NewPackage("/gist", "git", "https://github.com/kare/gist"),
-		"/vanity": internal.NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+	expected := map[string]*Package{
+		"/gist":   NewPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/vanity": NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
 	}
 	packages, err := readConfig(strings.NewReader(config))
 	if err != nil {
