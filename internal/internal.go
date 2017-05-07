@@ -59,8 +59,8 @@ func (p Package) goMetaContent() string {
 }
 
 // goDocURL returns the HTTP URL to godoc.org.
-func (p Package) goDocURL() string {
-	return fmt.Sprintf("https://godoc.org/%v", p.Name)
+func (p Package) goDocURL(domain string) string {
+	return fmt.Sprintf("https://godoc.org/%v%v", domain, p.Name)
 }
 
 // goImportLink creates the link used in HTML <meta/> tag
@@ -98,7 +98,7 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.FormValue("go-get") != "1" {
-		url := pack.goDocURL()
+		url := pack.goDocURL(s.Domain)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
