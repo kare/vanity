@@ -11,9 +11,9 @@ func TestParseConfig(t *testing.T) {
 
 /vanity	git	https://github.com/kare/vanity
 `
-	expected := map[string]*Package{
-		"/gist":   NewPackage("/gist", "git", "https://github.com/kare/gist"),
-		"/vanity": NewPackage("/vanity", "git", "https://github.com/kare/vanity"),
+	expected := map[string]*packageConfig{
+		"/gist":   newPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/vanity": newPackage("/vanity", "git", "https://github.com/kare/vanity"),
 	}
 	packages, err := readConfig(strings.NewReader(config))
 	if err != nil {

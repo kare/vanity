@@ -7,26 +7,26 @@ import (
 )
 
 type (
-	// Package defines Go package that has vanity import defined by Path,
+	// packageConfig defines Go package that has vanity import defined by Path,
 	// VCS system type and VCS URL.
-	Package struct {
+	packageConfig struct {
 		// Name is the name of the Go package.
 		Name string
 		// VCS is version control system used by the project.
 		VCS string
+		// URL of the git repository
 		URL string
 	}
-	// Server is the actual HTTP server for Go vanity domains.
-	Server struct {
+	// vanityServer is the actual HTTP server for Go vanity domains.
+	vanityServer struct {
 		// Domain is the vanity domain.
 		Domain string
-		// Packages contains settings for vanity packages.
-		Packages []*Package
-		packages map[string]*Package
+		// Packages contains settings for vanity Packages.
+		Packages map[string]*packageConfig
 	}
 )
 
-func (p Package) name() string {
+func (p packageConfig) name() string {
 	path := p.Name
 	c := strings.Index(path, "/")
 	if c == -1 {
@@ -35,48 +35,48 @@ func (p Package) name() string {
 	return path[c+1:]
 }
 
-// NewPackage returns a new Package given a path and VCS.
-func NewPackage(path, vcs, url string) *Package {
-	return &Package{
-		Name: path,
+// newPackage returns a new Package given a path and VCS.
+func newPackage(name, vcs, url string) *packageConfig {
+	return &packageConfig{
+		Name: name,
 		VCS:  vcs,
 		URL:  url,
 	}
 }
 
-// NewServer returns a new Vanity Server given domain name and
+// newServer returns a new Vanity Server given domain name and
 // vanity package configuration.
-func NewServer(domain string, config map[string]*Package) *Server {
-	return &Server{
+func newServer(domain string, config map[string]*packageConfig) *vanityServer {
+	return &vanityServer{
 		Domain:   domain,
-		packages: config,
+		Packages: config,
 	}
 }
 
 // goMetaContent creates a value from the <meta/> tag content attribute.
-func (p Package) goMetaContent() string {
+func (p packageConfig) goMetaContent() string {
 	return fmt.Sprintf("%v %v", p.VCS, p.URL)
 }
 
 // goDocURL returns the HTTP URL to godoc.org.
-func (p Package) goDocURL(domain string) string {
+func (p packageConfig) goDocURL(domain string) string {
 	return fmt.Sprintf("https://godoc.org/%v%v", domain, p.Name)
 }
 
 // goImportLink creates the link used in HTML <meta/> tag
 // where domain is the domain name of the server.
-func (p Package) goImportLink(domain string) string {
+func (p packageConfig) goImportLink(domain string) string {
 	return fmt.Sprintf("%v/%v %v", domain, p.name(), p.goMetaContent())
 }
 
 // goImportMeta creates the <meta/> HTML tag containing name and content attributes.
-func (p Package) goImportMeta(domain string) string {
+func (p packageConfig) goImportMeta(domain string) string {
 	link := p.goImportLink(domain)
 	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
 }
 
-func (s Server) find(path string) *Package {
-	p, ok := s.packages[path]
+func (s vanityServer) find(path string) *packageConfig {
+	p, ok := s.Packages[path]
 	if !ok {
 		return nil
 	}
@@ -84,7 +84,7 @@ func (s Server) find(path string) *Package {
 }
 
 // ServeHTTP is an HTTP Handler for Go vanity domain.
-func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s vanityServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	if r.Method != http.MethodGet {
 		status := http.StatusMethodNotAllowed

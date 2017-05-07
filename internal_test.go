@@ -10,27 +10,27 @@ import (
 
 var (
 	hostname = "kkn.fi"
-	config   = map[string]*Package{
-		"/gist":         NewPackage("/gist", "git", "https://github.com/kare/gist"),
-		"/set":          NewPackage("/set", "git", "https://github.com/kare/set"),
-		"/cmd/vanity":   NewPackage("/cmd/vanity", "git", "https://github.com/kare/vanity"),
-		"/cmd/tcpproxy": NewPackage("/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy"),
+	config   = map[string]*packageConfig{
+		"/gist":         newPackage("/gist", "git", "https://github.com/kare/gist"),
+		"/set":          newPackage("/set", "git", "https://github.com/kare/set"),
+		"/cmd/vanity":   newPackage("/cmd/vanity", "git", "https://github.com/kare/vanity"),
+		"/cmd/tcpproxy": newPackage("/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy"),
 	}
 )
 
 func TestPackage(t *testing.T) {
-	p := NewPackage("/gist", "git", "https://github.com/kare/gist")
+	p := newPackage("/gist", "git", "https://github.com/kare/gist")
 	if p.name() != "gist" {
 		t.Errorf("expected 'gist', got %v", p.name())
 	}
-	p = NewPackage("/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy")
+	p = newPackage("/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy")
 	if p.name() != "cmd/tcpproxy" {
 		t.Errorf("expected 'cmd/tcpproxy', got %v", p.name())
 	}
 }
 
 func TestHTTPMethodsSupport(t *testing.T) {
-	server := NewServer(hostname, config)
+	server := newServer(hostname, config)
 	tests := []struct {
 		method string
 		status int
@@ -57,7 +57,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 }
 
 func TestGoTool(t *testing.T) {
-	server := httptest.NewServer(NewServer(hostname, config))
+	server := httptest.NewServer(newServer(hostname, config))
 	defer server.Close()
 
 	tests := []struct {
@@ -102,7 +102,7 @@ func TestGoTool(t *testing.T) {
 }
 
 func TestGoToolPackageNotFound(t *testing.T) {
-	server := httptest.NewServer(NewServer(hostname, config))
+	server := httptest.NewServer(newServer(hostname, config))
 	defer server.Close()
 
 	url := server.URL + "/package-not-found?go-get=1"
@@ -130,7 +130,7 @@ func TestGoToolPackageNotFound(t *testing.T) {
 }
 
 func TestBrowserGoDoc(t *testing.T) {
-	server := httptest.NewServer(NewServer(hostname, config))
+	server := httptest.NewServer(newServer(hostname, config))
 	defer server.Close()
 
 	tests := []struct {

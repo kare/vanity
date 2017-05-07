@@ -42,13 +42,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := NewServer(*domainFlag, conf)
+	server := newServer(*domainFlag, conf)
 	port := fmt.Sprintf(":%v", *portFlag)
 	log.Fatal(http.ListenAndServe(port, server))
 }
 
-func readConfig(r io.Reader) (map[string]*Package, error) {
-	conf := make(map[string]*Package)
+func readConfig(r io.Reader) (map[string]*packageConfig, error) {
+	conf := make(map[string]*packageConfig)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
@@ -57,7 +57,7 @@ func readConfig(r io.Reader) (map[string]*Package, error) {
 			continue
 		case 3:
 			path := fields[0]
-			pack := NewPackage(path, fields[1], fields[2])
+			pack := newPackage(path, fields[1], fields[2])
 			conf[path] = pack
 		default:
 			return conf, errors.New("configuration error: " + scanner.Text())
