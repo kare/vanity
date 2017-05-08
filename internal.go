@@ -53,26 +53,15 @@ func newServer(domain string, config map[string]*packageConfig) *vanityServer {
 	}
 }
 
-// goMetaContent creates a value from the <meta/> tag content attribute.
-func (p packageConfig) goMetaContent() string {
-	return fmt.Sprintf("%v %v", p.VCS, p.URL)
-}
-
 // goDocURL returns the HTTP URL to godoc.org.
 func (p packageConfig) goDocURL(domain string) string {
 	return fmt.Sprintf("https://godoc.org/%v%v", domain, p.Name)
 }
 
-// goImportLink creates the link used in HTML <meta/> tag
-// where domain is the domain name of the server.
-func (p packageConfig) goImportLink(domain string) string {
-	return fmt.Sprintf("%v/%v %v", domain, p.name(), p.goMetaContent())
-}
-
 // goImportMeta creates the <meta/> HTML tag containing name and content attributes.
 func (p packageConfig) goImportMeta(domain string) string {
-	link := p.goImportLink(domain)
-	return fmt.Sprintf(`<meta name="go-import" content="%s">`, link)
+	s := `<meta name="go-import" content="%v/%v %v %v">`
+	return fmt.Sprintf(s, domain, p.name(), p.VCS, p.URL)
 }
 
 func (s vanityServer) find(path string) *packageConfig {
