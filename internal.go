@@ -27,12 +27,8 @@ type (
 )
 
 func (p packageConfig) name() string {
-	path := p.Name
-	c := strings.Index(path, "/")
-	if c == -1 {
-		return path
-	}
-	return path[c+1:]
+	i := strings.Index(p.Name, "/")
+	return p.Name[i+1:]
 }
 
 // newPackage returns a new Package given a path and VCS.
