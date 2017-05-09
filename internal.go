@@ -61,14 +61,6 @@ func (p packageConfig) goImportMeta(domain string) string {
 	return fmt.Sprintf(s, domain, p.path(), p.VCS, p.URL)
 }
 
-func (s vanityServer) find(path string) *packageConfig {
-	p, ok := s.Packages[path]
-	if !ok {
-		return nil
-	}
-	return p
-}
-
 // ServeHTTP is an HTTP Handler for Go vanity domain.
 func (s vanityServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
@@ -78,8 +70,8 @@ func (s vanityServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack := s.find(r.URL.Path)
-	if pack == nil {
+	pack, ok := s.Packages[r.URL.Path]
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
