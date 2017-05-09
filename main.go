@@ -12,12 +12,6 @@ import (
 	"strings"
 )
 
-var (
-	domainFlag = flag.String("d", "", "http domain name")
-	portFlag   = flag.Int("p", 80, "http server port")
-	confFlag   = flag.String("c", "", "configuration file")
-)
-
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: vanity -d domain -c vanity.conf [-p 80]\n")
 	flag.PrintDefaults()
@@ -29,27 +23,32 @@ func main() {
 	log.SetPrefix("vanity: ")
 	log.SetFlags(0)
 
-	if *domainFlag == "" || *confFlag == "" {
+	var (
+		domain   = flag.String("d", "", "http domain name")
+		port     = flag.Int("p", 80, "http server port")
+		confFile = flag.String("c", "", "configuration file")
+	)
+
+	if *domain == "" || *confFile == "" {
 		usage()
 		os.Exit(2)
 	}
 
-	c, err := os.Open(*confFlag)
+	file, err := os.Open(*confFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer func() {
-		if err := c.Close(); err != nil {
+		if err := file.Close(); err != nil {
 			log.Printf("error closing configuration file: %v", err)
 		}
 	}()
-	conf, err := readConfig(c)
+	conf, err := readConfig(file)
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := newServer(*domainFlag, conf)
-	port := fmt.Sprintf(":%v", *portFlag)
-	log.Fatal(http.ListenAndServe(port, server))
+	server := newServer(*domain, conf)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", *port), server))
 }
 
 func readConfig(r io.Reader) (map[string]*packageConfig, error) {
