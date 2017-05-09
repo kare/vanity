@@ -38,6 +38,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer func() {
+		if err := c.Close(); err != nil {
+			log.Printf("error closing configuration file: %v", err)
+		}
+	}()
 	conf, err := readConfig(c)
 	if err != nil {
 		log.Fatal(err)
