@@ -55,8 +55,8 @@ func (p packageConfig) goDocURL(domain string) string {
 	return fmt.Sprintf("https://godoc.org/%v%v", domain, p.Name)
 }
 
-// goImportMeta creates the <meta/> HTML tag containing name and content attributes.
-func (p packageConfig) goImportMeta(domain string) string {
+// goMetaTag creates the <meta/> HTML tag containing name and content attributes.
+func (p packageConfig) goMetaTag(domain string) string {
 	s := `<meta name="go-import" content="%v/%v %v %v">`
 	return fmt.Sprintf(s, domain, p.path(), p.VCS, p.URL)
 }
@@ -80,5 +80,5 @@ func (s vanityServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Fprint(w, pack.goImportMeta(s.Domain))
+	fmt.Fprint(w, pack.goMetaTag(s.Domain))
 }
