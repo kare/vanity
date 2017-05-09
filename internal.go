@@ -26,11 +26,6 @@ type (
 	}
 )
 
-func (p packageConfig) path() string {
-	i := strings.Index(p.Name, "/")
-	return p.Name[i+1:]
-}
-
 // newPackage returns a new Package given a path and VCS.
 func newPackage(name, vcs, url string) *packageConfig {
 	return &packageConfig{
@@ -47,6 +42,12 @@ func newServer(domain string, config map[string]*packageConfig) *vanityServer {
 		Domain:   domain,
 		Packages: config,
 	}
+}
+
+// path returns the path portition of the package name
+func (p packageConfig) path() string {
+	i := strings.Index(p.Name, "/")
+	return p.Name[i+1:]
 }
 
 // goDocURL returns the HTTP URL to godoc.org.
