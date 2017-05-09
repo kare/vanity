@@ -20,12 +20,12 @@ var (
 
 func TestPackage(t *testing.T) {
 	p := newPackage("/gist", "git", "https://github.com/kare/gist")
-	if p.name() != "gist" {
-		t.Errorf("expected 'gist', got %v", p.name())
+	if p.path() != "gist" {
+		t.Errorf("expected 'gist', got %v", p.path())
 	}
 	p = newPackage("/cmd/tcpproxy", "git", "https://github.com/kare/tcpproxy")
-	if p.name() != "cmd/tcpproxy" {
-		t.Errorf("expected 'cmd/tcpproxy', got %v", p.name())
+	if p.path() != "cmd/tcpproxy" {
+		t.Errorf("expected 'cmd/tcpproxy', got %v", p.path())
 	}
 }
 

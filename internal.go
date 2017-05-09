@@ -26,7 +26,7 @@ type (
 	}
 )
 
-func (p packageConfig) name() string {
+func (p packageConfig) path() string {
 	i := strings.Index(p.Name, "/")
 	return p.Name[i+1:]
 }
@@ -57,7 +57,7 @@ func (p packageConfig) goDocURL(domain string) string {
 // goImportMeta creates the <meta/> HTML tag containing name and content attributes.
 func (p packageConfig) goImportMeta(domain string) string {
 	s := `<meta name="go-import" content="%v/%v %v %v">`
-	return fmt.Sprintf(s, domain, p.name(), p.VCS, p.URL)
+	return fmt.Sprintf(s, domain, p.path(), p.VCS, p.URL)
 }
 
 func (s vanityServer) find(path string) *packageConfig {
