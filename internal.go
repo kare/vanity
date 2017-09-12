@@ -75,6 +75,7 @@ func (s vanityServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("Cache-Control", "public, max-age=300")
 	if r.FormValue("go-get") != "1" {
 		url := pack.goDocURL(s.Domain)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
