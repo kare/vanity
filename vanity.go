@@ -39,7 +39,7 @@ func GoDocRedirect(vcs, importPath, repoPath string) http.Handler {
 			vcsroot = repoPath + r.URL.Path
 		}
 		if r.FormValue("go-get") != "1" {
-			url := "https://godoc.org/" + r.URL.Host + r.URL.Path
+			url := "https://godoc.org/" + r.Host + r.URL.Path
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
