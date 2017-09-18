@@ -1,27 +1,25 @@
 
-# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/cmd/vanity?status.svg)](https://godoc.org/kkn.fi/cmd/vanity)
+# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/cmd/vanity?status.svg)](https://godoc.org/kkn.fi/vanity)
+
+## Concepts
+- VCS root is the root path the source code repository (such as github.com/kare)
+- Domain is the internet address where the Go Vanity server is hosted (such as
+  9fans.net or kkn.fi)
+- Path is the path component of the Go package (such as /cmd/tcpproxy in
+  kkn.fi/cmd/tcpproxy)
 
 ## Features
 - Redirects browsers to godoc.org
 - Redirects Go tool to VCS
+- Automatic configuration of packages:
+	- All packages are redirected with full path to vcsroot.
+	- Packages whose path is prefixed with "/cmd/" redirect automatically to
+	  vcsroot by stripping the "/cmd" prefix from the package path.
+	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
 
 ## Installation
 ```
-go get kkn.fi/cmd/vanity
-```
-
-## Configuration
-Configuration example for Gorilla project:
-
-```
-/context  git https://github.com/gorilla/context
-/mux  git https://github.com/gorilla/mux
-```
-
-## Running
-Script to run Gorilla toolkit's vanity domain server:
-```
-vanity -d gorillatoolkit.org -c vanity.conf
+go get kkn.fi/vanity
 ```
 
 ## Specification

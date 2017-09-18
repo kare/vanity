@@ -1,34 +1,26 @@
 
-NAME := kkn.fi/cmd/vanity
+NAME := kkn.fi/vanity
 
-.PHONY: build test vet lint errcheck cover heat check
-
+.PHONY: build
 build:
-	go build $(NAME)/...
+	go build $(NAME)
 
+.PHONY: test
 test:
-	go test -v $(NAME)/...
+	go test -v $(NAME)
 
-vet:
-	go vet $(NAME)/...
-
+.PHONY: lint
 lint:
-	golint $(NAME)/...
+	gometalint ./...
 
-errcheck:
-	errcheck $(NAME)/...
-
+.PHONY: cover
 cover:
 	go test -coverprofile=coverage.out $(NAME)
 	go tool cover -html=coverage.out
 	@rm -f coverage.out
 
+.PHONY: heat
 heat:
 	go test -covermode=count -coverprofile=count.out $(NAME)
 	go tool cover -html=count.out
 	@rm -f count.out
-
-check: vet lint errcheck test heat
-
-plan9:
-	GOOS=plan9 GOARCH=amd64 go build
