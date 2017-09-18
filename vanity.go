@@ -33,6 +33,10 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 		}
 
 		path := strings.TrimSuffix(r.URL.Path, "/")
+		if !strings.HasPrefix(strings.TrimSuffix(r.Host+r.URL.Path, "/"), importPath+"/") {
+			http.NotFound(w, r)
+			return
+		}
 		vcsroot := ""
 		if strings.HasPrefix(r.URL.Path, "/cmd/") {
 			path = r.URL.Path[4:]

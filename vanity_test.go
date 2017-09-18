@@ -35,6 +35,19 @@ func TestHTTPMethodsSupport(t *testing.T) {
 	}
 }
 
+func TestIndexPageNotFound(t *testing.T) {
+	res := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "http://kkn.fi/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+	srv.ServeHTTP(res, req)
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("Expected response status 404, but got %v", res.Code)
+	}
+}
+
 func TestGoTool(t *testing.T) {
 	tests := []struct {
 		path   string
