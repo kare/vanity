@@ -5,5 +5,5 @@ import (
 )
 
 func ExampleBasic() {
-	http.Handle("/", GoDocRedirect("git", "kkn.fi", "github.com/kare"))
+	http.Handle("/", Redirect("git", "kkn.fi", "github.com/kare"))
 }

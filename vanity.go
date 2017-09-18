@@ -22,7 +22,9 @@ var tmpl = template.Must(template.New("main").Parse(`<!DOCTYPE html>
 </html>
 `))
 
-func GoDocRedirect(vcs, importPath, repoPath string) http.Handler {
+// Redirect is a HTTP middleware that redirects browsers to godoc.org or
+// Go tool to VCS repository.
+func Redirect(vcs, importPath, repoRoot string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			status := http.StatusMethodNotAllowed
@@ -34,9 +36,9 @@ func GoDocRedirect(vcs, importPath, repoPath string) http.Handler {
 		vcsroot := ""
 		if strings.HasPrefix(r.URL.Path, "/cmd/") {
 			path = r.URL.Path[4:]
-			vcsroot = repoPath + path
+			vcsroot = repoRoot + path
 		} else {
-			vcsroot = repoPath + r.URL.Path
+			vcsroot = repoRoot + r.URL.Path
 		}
 		if r.FormValue("go-get") != "1" {
 			url := "https://godoc.org/" + r.Host + r.URL.Path

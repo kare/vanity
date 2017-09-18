@@ -27,7 +27,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 			t.Skipf("http request with method %v failed with error: %v", test.method, err)
 		}
 		res := httptest.NewRecorder()
-		srv := GoDocRedirect("git", "kkn.fi", "https://github.com/kare")
+		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(res, req)
 		if res.Code != test.status {
 			t.Fatalf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.Code)
@@ -51,7 +51,7 @@ func TestGoTool(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		srv := GoDocRedirect("git", "kkn.fi", "https://github.com/kare")
+		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(res, req)
 
 		body, err := ioutil.ReadAll(res.Body)
@@ -91,7 +91,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		srv := GoDocRedirect("git", "kkn.fi", "https://github.com/kare")
+		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(res, req)
 
 		if res.Code != http.StatusTemporaryRedirect {
