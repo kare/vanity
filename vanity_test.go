@@ -8,6 +8,24 @@ import (
 	"testing"
 )
 
+var addr = "https://kkn.fi"
+
+func TestRedirectFromHttpToHttps(t *testing.T) {
+	res := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "http://kkn.fi", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+	srv.ServeHTTP(res, req)
+	if res.Code != http.StatusMovedPermanently {
+		t.Fatalf("expected response status 301, but got %v", res.Code)
+	}
+	if res.Header().Get("Location") != addr {
+		t.Fatalf("expected response location '%v', but got '%v'", addr, res.Header().Get("Location"))
+	}
+}
+
 func TestHTTPMethodsSupport(t *testing.T) {
 	tests := []struct {
 		method string
@@ -22,7 +40,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		{http.MethodOptions, http.StatusMethodNotAllowed},
 	}
 	for _, test := range tests {
-		req, err := http.NewRequest(test.method, "http://kkn.fi"+"/gist?go-get=1", nil)
+		req, err := http.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		if err != nil {
 			t.Skipf("http request with method %v failed with error: %v", test.method, err)
 		}
@@ -37,7 +55,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 
 func TestIndexPageNotFound(t *testing.T) {
 	res := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "http://kkn.fi/", nil)
+	req, err := http.NewRequest("GET", addr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +78,7 @@ func TestGoTool(t *testing.T) {
 	}
 	for _, test := range tests {
 		res := httptest.NewRecorder()
-		req, err := http.NewRequest("GET", "http://kkn.fi"+test.path, nil)
+		req, err := http.NewRequest("GET", addr+test.path, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -100,7 +118,7 @@ func TestBrowserGoDoc(t *testing.T) {
 	}
 	for _, test := range tests {
 		res := httptest.NewRecorder()
-		req, err := http.NewRequest("GET", "http://kkn.fi"+test.path, nil)
+		req, err := http.NewRequest("GET", addr+test.path, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

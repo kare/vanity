@@ -26,6 +26,11 @@ var tmpl = template.Must(template.New("main").Parse(`<!DOCTYPE html>
 // Go tool to VCS repository.
 func Redirect(vcs, importPath, repoRoot string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Scheme == "http" {
+			r.URL.Scheme = "https"
+			http.Redirect(w, r, r.URL.String(), http.StatusMovedPermanently)
+			return
+		}
 		if r.Method != http.MethodGet {
 			status := http.StatusMethodNotAllowed
 			http.Error(w, http.StatusText(status), status)
