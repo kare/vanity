@@ -2,6 +2,7 @@
 # Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/cmd/vanity?status.svg)](https://godoc.org/kkn.fi/vanity)
 
 ## Concepts
+- VCS is Version Control System (such as Git or Mercurial)
 - VCS root is the root path the source code repository (such as github.com/kare)
 - Domain is the internet address where the Go Vanity server is hosted (such as
   9fans.net or kkn.fi)
