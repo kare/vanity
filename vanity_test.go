@@ -126,7 +126,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		srv.ServeHTTP(res, req)
 
 		if res.Code != http.StatusTemporaryRedirect {
-			t.Fatalf("Expected response status %v, but got %v", http.StatusOK, res.Code)
+			t.Fatalf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.Code)
 		}
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
