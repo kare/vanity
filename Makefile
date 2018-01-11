@@ -1,6 +1,8 @@
 
 NAME := kkn.fi/vanity
 
+GOMETALINTER := $(GOPATH)/bin/gometalinter
+
 .PHONY: build
 build:
 	go build $(NAME)
@@ -10,8 +12,12 @@ test:
 	go test -v $(NAME)
 
 .PHONY: lint
-lint:
+lint: $(GOMETALINTER)
 	gometalinter ./...
+
+$(GOMETALINTER):
+	go get -u github.com/alecthomas/gometalinter
+	gometalinter --install
 
 .PHONY: cover
 cover:
