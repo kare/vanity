@@ -42,13 +42,24 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
-		vcsroot := ""
+		vcsroot := repoRoot
 		if strings.HasPrefix(r.URL.Path, "/cmd/") {
 			path = r.URL.Path[4:]
-			vcsroot = repoRoot + path
 		} else {
-			vcsroot = repoRoot + r.URL.Path
+			path = r.URL.Path
 		}
+		shortPath := strings.Split(path, "/")
+
+		f := func(c rune) bool {
+			return c == '/'
+		}
+
+		shortPath = strings.FieldsFunc(path, f)
+
+		if (len(shortPath) > 0) {
+			vcsroot = repoRoot + "/" + shortPath[0]
+		}
+
 		if r.FormValue("go-get") != "1" {
 			url := "https://godoc.org/" + r.Host + r.URL.Path
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)

@@ -75,6 +75,7 @@ func TestGoTool(t *testing.T) {
 		{"/set?go-get=1", "kkn.fi/set git https://github.com/kare/set"},
 		{"/cmd/vanity?go-get=1", "kkn.fi/cmd/vanity git https://github.com/kare/vanity"},
 		{"/cmd/tcpproxy?go-get=1", "kkn.fi/cmd/tcpproxy git https://github.com/kare/tcpproxy"},
+		{"/pkg/subpkg?go-get=1", "kkn.fi/pkg/subpkg git https://github.com/kare/pkg"},
 	}
 	for _, test := range tests {
 		res := httptest.NewRecorder()
