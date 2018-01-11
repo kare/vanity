@@ -11,7 +11,7 @@ test:
 
 .PHONY: lint
 lint:
-	gometalint ./...
+	gometalinter ./...
 
 .PHONY: cover
 cover:
