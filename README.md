@@ -12,6 +12,7 @@
 ## Features
 - Redirects browsers to godoc.org
 - Redirects Go tool to VCS
+- Redirects HTTP to HTTPS
 - Automatic configuration of packages:
 	- All packages are redirected with full path to vcsroot.
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
