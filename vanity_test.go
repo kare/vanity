@@ -116,6 +116,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		{"/set", "https://godoc.org/kkn.fi/set"},
 		{"/cmd/vanity", "https://godoc.org/kkn.fi/cmd/vanity"},
 		{"/cmd/tcpproxy", "https://godoc.org/kkn.fi/cmd/tcpproxy"},
+		{"/pkgabc/sub/foo", "https://godoc.org/kkn.fi/pkgabc/sub"},
 	}
 	for _, test := range tests {
 		res := httptest.NewRecorder()

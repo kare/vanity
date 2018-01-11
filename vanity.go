@@ -37,34 +37,31 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			return
 		}
 
-		path := strings.TrimSuffix(r.URL.Path, "/")
 		if !strings.HasPrefix(strings.TrimSuffix(r.Host+r.URL.Path, "/"), importPath+"/") {
 			http.NotFound(w, r)
 			return
 		}
-		vcsroot := repoRoot
-		if strings.HasPrefix(r.URL.Path, "/cmd/") {
-			path = r.URL.Path[4:]
-		} else {
-			path = r.URL.Path
-		}
-		shortPath := strings.Split(path, "/")
-
-		f := func(c rune) bool {
-			return c == '/'
-		}
-
-		shortPath = strings.FieldsFunc(path, f)
-
-		if (len(shortPath) > 0) {
-			vcsroot = repoRoot + "/" + shortPath[0]
-		}
-
 		if r.FormValue("go-get") != "1" {
 			url := "https://godoc.org/" + r.Host + r.URL.Path
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
+
+		var path string
+		if strings.HasPrefix(r.URL.Path, "/cmd/") {
+			path = r.URL.Path[4:]
+		} else {
+			path = r.URL.Path
+		}
+
+		// redirect github.com/kare/pkg/sub -> github.com/kare/pkg
+		vcsroot := repoRoot
+		f := func(c rune) bool { return c == '/' }
+		shortPath := strings.FieldsFunc(path, f)
+		if len(shortPath) > 0 {
+			vcsroot = repoRoot + "/" + shortPath[0]
+		}
+
 		d := &data{
 			ImportRoot: r.Host + r.URL.Path,
 			VCS:        vcs,
