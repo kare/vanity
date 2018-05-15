@@ -2,6 +2,7 @@ package vanity
 
 import (
 	"io/ioutil"
+	stdlog "log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,19 +11,24 @@ import (
 
 var addr = "https://kkn.fi"
 
+func init() {
+	SetLogger(stdlog.New(ioutil.Discard, "", 0))
+}
+
 func TestRedirectFromHttpToHttps(t *testing.T) {
-	res := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "http://kkn.fi", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
-	srv.ServeHTTP(res, req)
-	if res.Code != http.StatusMovedPermanently {
-		t.Fatalf("expected response status 301, but got %v", res.Code)
+	srv.ServeHTTP(rec, req)
+	res := rec.Result()
+	if res.StatusCode != http.StatusMovedPermanently {
+		t.Fatalf("expected response status 301, but got %v", res.StatusCode)
 	}
-	if res.Header().Get("Location") != addr {
-		t.Fatalf("expected response location '%v', but got '%v'", addr, res.Header().Get("Location"))
+	if res.Header.Get("Location") != addr {
+		t.Fatalf("expected response location '%v', but got '%v'", addr, res.Header.Get("Location"))
 	}
 }
 
@@ -44,25 +50,27 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		if err != nil {
 			t.Skipf("http request with method %v failed with error: %v", test.method, err)
 		}
-		res := httptest.NewRecorder()
+		rec := httptest.NewRecorder()
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
-		srv.ServeHTTP(res, req)
-		if res.Code != test.status {
-			t.Fatalf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.Code)
+		srv.ServeHTTP(rec, req)
+		res := rec.Result()
+		if res.StatusCode != test.status {
+			t.Fatalf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.StatusCode)
 		}
 	}
 }
 
 func TestIndexPageNotFound(t *testing.T) {
-	res := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", addr, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
-	srv.ServeHTTP(res, req)
-	if res.Code != http.StatusNotFound {
-		t.Fatalf("Expected response status 404, but got %v", res.Code)
+	srv.ServeHTTP(rec, req)
+	res := rec.Result()
+	if res.StatusCode != http.StatusNotFound {
+		t.Fatalf("Expected response status 404, but got %v", res.StatusCode)
 	}
 }
 
@@ -78,14 +86,15 @@ func TestGoTool(t *testing.T) {
 		{"/pkg/subpkg?go-get=1", "kkn.fi/pkg/subpkg git https://github.com/kare/pkg"},
 	}
 	for _, test := range tests {
-		res := httptest.NewRecorder()
+		rec := httptest.NewRecorder()
 		req, err := http.NewRequest("GET", addr+test.path, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
-		srv.ServeHTTP(res, req)
+		srv.ServeHTTP(rec, req)
 
+		res := rec.Result()
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("reading response body failed with error: %v", err)
@@ -97,12 +106,12 @@ func TestGoTool(t *testing.T) {
 		}
 
 		expected = "text/html; charset=utf-8"
-		if res.HeaderMap.Get("content-type") != expected {
-			t.Fatalf("Expecting content type '%v', but got '%v'", expected, res.HeaderMap.Get("content-type"))
+		if res.Header.Get("content-type") != expected {
+			t.Fatalf("Expecting content type '%v', but got '%v'", expected, res.Header.Get("content-type"))
 		}
 
-		if res.Code != http.StatusOK {
-			t.Fatalf("Expected response status 200, but got %v", res.Code)
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected response status 200, but got %v", res.StatusCode)
 		}
 	}
 }
@@ -119,16 +128,16 @@ func TestBrowserGoDoc(t *testing.T) {
 		{"/pkgabc/sub/foo", "https://godoc.org/kkn.fi/pkgabc/sub"},
 	}
 	for _, test := range tests {
-		res := httptest.NewRecorder()
+		rec := httptest.NewRecorder()
 		req, err := http.NewRequest("GET", addr+test.path, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
-		srv.ServeHTTP(res, req)
-
-		if res.Code != http.StatusTemporaryRedirect {
-			t.Fatalf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.Code)
+		srv.ServeHTTP(rec, req)
+		res := rec.Result()
+		if res.StatusCode != http.StatusTemporaryRedirect {
+			t.Fatalf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
 		}
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {

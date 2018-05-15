@@ -7,6 +7,21 @@ import (
 	"strings"
 )
 
+var (
+	// log is error log.
+	log Logger
+)
+
+// Logger describes functions available for logging purposes.
+type Logger interface {
+	Printf(format string, v ...interface{})
+}
+
+// SetLogger sets the logger used by vanity package's error log.
+func SetLogger(l Logger) {
+	log = l
+}
+
 type data struct {
 	ImportRoot string
 	VCS        string
@@ -70,10 +85,14 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 		var buf bytes.Buffer
 		err := tmpl.Execute(&buf, d)
 		if err != nil {
+			log.Printf("template execution error: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Cache-Control", "public, max-age=300")
-		w.Write(buf.Bytes())
+		_, err = w.Write(buf.Bytes())
+		if err != nil {
+			log.Printf("i/o error: %v", err)
+		}
 	})
 }
