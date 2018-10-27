@@ -1,13 +1,23 @@
 #!/bin/bash
 
-# $pkg is relative path to package
-pkg=kkn.fi/vanity
-importPath=kkn.fi/vanity
-relativePkg="${pkg/$importPath/.}"
+import_path="kkn.fi/vanity"
+pkgs=$(go list ./... | grep -vF /vendor/)
+ignored_pkgs=""
 
-output=`gofmt -s -l $relativePkg`
-if [ "$output" != "" ]; then
-	echo "validate-gofmt.sh: error $pkg" 1>&2
-	exit 1
-fi
-exit 0
+for pkg in $pkgs; do
+	relative_path="${pkg/$import_path/.}"
+	i=0
+	for ignore_pkg in $ignored_pkgs; do
+		if [ "$ignore_pkg" == "$relative_path" ]; then
+			i=1
+		fi
+		if [ $i -eq 1 ]; then
+			continue
+		fi
+	done
+	output=$(gofmt -s -l $relative_path)
+	if [ "$output" != "" ]; then
+		echo "validate-gofmt.sh: error $output" 1>&2
+		exit 1
+	fi
+done

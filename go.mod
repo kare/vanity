@@ -1,0 +1,1 @@
+module kkn.fi/vanity

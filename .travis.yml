@@ -1,14 +1,16 @@
 dist: trusty
 language: go
 go_import_path: kkn.fi/vanity
-go: 1.10.x
+go: 1.11.x
+env:
+    - GO111MODULE=on
 jobs:
     include:
         - stage: lint
           script:
               - ./ci/validate-gofmt.sh
-              - go get -u github.com/golang/lint/golint
-              - ./ci/lint.sh
+              - go get golang.org/x/lint/golint
+              - ./ci/validate-lint.sh
         - stage: test
           script: go test kkn.fi/vanity
           install: skip
