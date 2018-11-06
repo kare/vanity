@@ -17,10 +17,7 @@ func init() {
 
 func TestRedirectFromHttpToHttps(t *testing.T) {
 	rec := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "http://kkn.fi", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req := httptest.NewRequest("GET", "http://kkn.fi", nil)
 	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 	srv.ServeHTTP(rec, req)
 	res := rec.Result()
@@ -46,10 +43,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		{http.MethodOptions, http.StatusMethodNotAllowed},
 	}
 	for _, test := range tests {
-		req, err := http.NewRequest(test.method, addr+"/gist?go-get=1", nil)
-		if err != nil {
-			t.Skipf("http request with method %v failed with error: %v", test.method, err)
-		}
+		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
@@ -62,10 +56,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 
 func TestIndexPageNotFound(t *testing.T) {
 	rec := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", addr, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req := httptest.NewRequest("GET", addr, nil)
 	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 	srv.ServeHTTP(rec, req)
 	res := rec.Result()
@@ -87,10 +78,7 @@ func TestGoTool(t *testing.T) {
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
-		req, err := http.NewRequest("GET", addr+test.path, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
+		req := httptest.NewRequest("GET", addr+test.path, nil)
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
 
@@ -129,10 +117,7 @@ func TestBrowserGoDoc(t *testing.T) {
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
-		req, err := http.NewRequest("GET", addr+test.path, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
+		req := httptest.NewRequest("GET", addr+test.path, nil)
 		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
