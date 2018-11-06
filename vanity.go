@@ -61,7 +61,6 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
-
 		var path string
 		if strings.HasPrefix(r.URL.Path, "/cmd/") {
 			path = r.URL.Path[4:]
@@ -83,15 +82,13 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			VCSRoot:    vcsroot,
 		}
 		var buf bytes.Buffer
-		err := tmpl.Execute(&buf, d)
-		if err != nil {
+		if err := tmpl.Execute(&buf, d); err != nil {
 			log.Printf("template execution error: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Cache-Control", "public, max-age=300")
-		_, err = w.Write(buf.Bytes())
-		if err != nil {
+		if _, err := w.Write(buf.Bytes()); err != nil {
 			log.Printf("i/o error: %v", err)
 		}
 	})
