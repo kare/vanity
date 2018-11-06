@@ -1,17 +1,20 @@
-package vanity
+package vanity_test
 
 import (
-	stdlog "log"
+	"log"
 	"net/http"
 	"os"
+
+	"kkn.fi/vanity"
 )
 
 func ExampleRedirect() {
-	http.Handle("/", Redirect("git", "kkn.fi", "github.com/kare"))
+	http.Handle("/", vanity.Redirect("git", "kkn.fi", "github.com/kare"))
+	// Output:
 }
 
 func ExampleSetLogger() {
-	// stdlog is Go Standard Library's log package
-	errorLog := stdlog.New(os.Stderr, "vanity: ", stdlog.Ldate|stdlog.Ltime|stdlog.LUTC)
-	SetLogger(errorLog)
+	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
+	vanity.SetLogger(errorLog)
+	// Output:
 }
