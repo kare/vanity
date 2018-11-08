@@ -1,9 +1,11 @@
 
 # Change Log
 
-## Unreleased
+## Release v0.2.0 - 2018-11-06
+### Added
 - Rework internal structure
-- Rename main to kkn.fi/cmd/vanity
+- Add support for configurable package logger
+- Support Go 1.11 Modules
 
 ## Release v0.1.0 - 2016-12-12
 ### Added

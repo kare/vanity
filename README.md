@@ -18,6 +18,7 @@
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
+- Configurable logger which is fully compatible with standard log package
 
 ## Installation
 ```
