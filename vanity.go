@@ -1,4 +1,4 @@
-package vanity // import "kkn.fi/vanity"
+package vanity
 
 import (
 	"bytes"
