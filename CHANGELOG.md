@@ -1,6 +1,11 @@
 
 # Change Log
 
+## Release v0.2.1 - 2019-12-28
+### Added
+- Require Go 1.13
+- Use pkg.go.dev instead of godoc.org
+
 ## Release v0.2.0 - 2018-11-06
 ### Added
 - Rework internal structure
