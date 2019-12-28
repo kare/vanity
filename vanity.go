@@ -83,13 +83,13 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 		}
 		var buf bytes.Buffer
 		if err := tmpl.Execute(&buf, d); err != nil {
-			log.Printf("template execution error: %v", err)
+			log.Printf("vanity: template execution error: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Cache-Control", "public, max-age=300")
 		if _, err := w.Write(buf.Bytes()); err != nil {
-			log.Printf("i/o error: %v", err)
+			log.Printf("vanity: i/o error: %v", err)
 		}
 	})
 }
