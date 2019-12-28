@@ -109,11 +109,11 @@ func TestBrowserGoDoc(t *testing.T) {
 		path   string
 		result string
 	}{
-		{"/gist", "https://godoc.org/kkn.fi/gist"},
-		{"/set", "https://godoc.org/kkn.fi/set"},
-		{"/cmd/vanity", "https://godoc.org/kkn.fi/cmd/vanity"},
-		{"/cmd/tcpproxy", "https://godoc.org/kkn.fi/cmd/tcpproxy"},
-		{"/pkgabc/sub/foo", "https://godoc.org/kkn.fi/pkgabc/sub"},
+		{"/gist", "https://pkg.go.dev/kkn.fi/gist"},
+		{"/set", "https://pkg.go.dev/kkn.fi/set"},
+		{"/cmd/vanity", "https://pkg.go.dev/kkn.fi/cmd/vanity"},
+		{"/cmd/tcpproxy", "https://pkg.go.dev/kkn.fi/cmd/tcpproxy"},
+		{"/pkgabc/sub/foo", "https://pkg.go.dev/kkn.fi/pkgabc/sub"},
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()

@@ -37,7 +37,7 @@ var tmpl = template.Must(template.New("main").Parse(`<!DOCTYPE html>
 </html>
 `))
 
-// Redirect is a HTTP middleware that redirects browsers to godoc.org or
+// Redirect is a HTTP middleware that redirects browsers to pkg.go.dev or
 // Go tool to VCS repository.
 func Redirect(vcs, importPath, repoRoot string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +57,7 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			return
 		}
 		if r.FormValue("go-get") != "1" {
-			url := "https://godoc.org/" + r.Host + r.URL.Path
+			url := "https://pkg.go.dev/" + r.Host + r.URL.Path
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
