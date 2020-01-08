@@ -1,31 +1,34 @@
-package vanity
+package vanity_test
 
 import (
+	"fmt"
 	"io/ioutil"
-	stdlog "log"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"kkn.fi/vanity"
 )
 
 var addr = "https://kkn.fi"
 
 func init() {
-	SetLogger(stdlog.New(ioutil.Discard, "", 0))
+	vanity.SetLogger(log.New(ioutil.Discard, "", 0))
 }
 
 func TestRedirectFromHttpToHttps(t *testing.T) {
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://kkn.fi", nil)
-	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+	srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
 	srv.ServeHTTP(rec, req)
 	res := rec.Result()
 	if res.StatusCode != http.StatusMovedPermanently {
-		t.Fatalf("expected response status 301, but got %v", res.StatusCode)
+		t.Errorf("expected response status 301, but got %v", res.StatusCode)
 	}
 	if res.Header.Get("Location") != addr {
-		t.Fatalf("expected response location '%v', but got '%v'", addr, res.Header.Get("Location"))
+		t.Errorf("expected response location '%v', but got '%v'", addr, res.Header.Get("Location"))
 	}
 }
 
@@ -45,11 +48,11 @@ func TestHTTPMethodsSupport(t *testing.T) {
 	for _, test := range tests {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
-		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != test.status {
-			t.Fatalf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.StatusCode)
+			t.Errorf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.StatusCode)
 		}
 	}
 }
@@ -57,11 +60,11 @@ func TestHTTPMethodsSupport(t *testing.T) {
 func TestIndexPageNotFound(t *testing.T) {
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", addr, nil)
-	srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+	srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
 	srv.ServeHTTP(rec, req)
 	res := rec.Result()
 	if res.StatusCode != http.StatusNotFound {
-		t.Fatalf("Expected response status 404, but got %v", res.StatusCode)
+		t.Errorf("Expected response status 404, but got %v", res.StatusCode)
 	}
 }
 
@@ -79,27 +82,18 @@ func TestGoTool(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", addr+test.path, nil)
-		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
 
 		res := rec.Result()
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Fatalf("reading response body failed with error: %v", err)
-		}
-
-		expected := `<meta name="go-import" content="` + test.result + `">`
+		body, _ := ioutil.ReadAll(res.Body)
+		expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
 		if !strings.Contains(string(body), expected) {
-			t.Fatalf("Expecting url '%v' body to contain html meta tag: '%v', but got:\n'%v'", test.path, expected, string(body))
-		}
-
-		expected = "text/html; charset=utf-8"
-		if res.Header.Get("content-type") != expected {
-			t.Fatalf("Expecting content type '%v', but got '%v'", expected, res.Header.Get("content-type"))
+			t.Errorf("Expecting url '%v' body to contain html meta tag: '%v', but got:\n'%v'", test.path, expected, string(body))
 		}
 
 		if res.StatusCode != http.StatusOK {
-			t.Fatalf("Expected response status 200, but got %v", res.StatusCode)
+			t.Errorf("Expected response status 200, but got %v", res.StatusCode)
 		}
 	}
 }
@@ -118,18 +112,15 @@ func TestBrowserGoDoc(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", addr+test.path, nil)
-		srv := Redirect("git", "kkn.fi", "https://github.com/kare")
+		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusTemporaryRedirect {
-			t.Fatalf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
+			t.Errorf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
 		}
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Fatalf("reading response body failed with error: %v", err)
-		}
+		body, _ := ioutil.ReadAll(res.Body)
 		if !strings.Contains(string(body), test.result) {
-			t.Fatalf("Expecting '%v' be contained in '%v'", test.result, string(body))
+			t.Errorf("Expecting '%v' be contained in '%v'", test.result, string(body))
 		}
 	}
 }

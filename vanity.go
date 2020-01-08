@@ -1,8 +1,7 @@
 package vanity
 
 import (
-	"bytes"
-	"html/template"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -22,25 +21,10 @@ func SetLogger(l Logger) {
 	log = l
 }
 
-type data struct {
-	ImportRoot string
-	VCS        string
-	VCSRoot    string
-}
-
-var tmpl = template.Must(template.New("main").Parse(`<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="go-import" content="{{.ImportRoot}} {{.VCS}} {{.VCSRoot}}">
-</head>
-</html>
-`))
-
-// Redirect is a HTTP middleware that redirects browsers to pkg.go.dev or
+// Redirect is an HTTP middleware that redirects browsers to pkg.go.dev or
 // Go tool to VCS repository.
 func Redirect(vcs, importPath, repoRoot string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	redirect := func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Scheme == "http" {
 			r.URL.Scheme = "https"
 			http.Redirect(w, r, r.URL.String(), http.StatusMovedPermanently)
@@ -56,11 +40,16 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+
+		// Redirect browsers to Go module site.
+		// Such as pkg.go.dev or something similar
 		if r.FormValue("go-get") != "1" {
-			url := "https://pkg.go.dev/" + r.Host + r.URL.Path
+			goProxyHostname := "pkg.go.dev"
+			url := "https://" + goProxyHostname + "/" + r.Host + r.URL.Path
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
+
 		var path string
 		if strings.HasPrefix(r.URL.Path, "/cmd/") {
 			path = r.URL.Path[4:]
@@ -76,20 +65,13 @@ func Redirect(vcs, importPath, repoRoot string) http.Handler {
 			vcsroot = repoRoot + "/" + shortPath[0]
 		}
 
-		d := &data{
-			ImportRoot: r.Host + r.URL.Path,
-			VCS:        vcs,
-			VCSRoot:    vcsroot,
-		}
-		var buf bytes.Buffer
-		if err := tmpl.Execute(&buf, d); err != nil {
-			log.Printf("vanity: template execution error: %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Cache-Control", "public, max-age=300")
-		if _, err := w.Write(buf.Bytes()); err != nil {
+		// Respond to Go tool with vcs info meta tag
+		importRoot := r.Host + r.URL.Path
+		meta := `<meta name="go-import" content="%v %v %v">`
+		s := fmt.Sprintf(meta, importRoot, vcs, vcsroot)
+		if _, err := w.Write([]byte(s)); err != nil {
 			log.Printf("vanity: i/o error: %v", err)
 		}
-	})
+	}
+	return http.HandlerFunc(redirect)
 }
