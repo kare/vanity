@@ -1,5 +1,6 @@
-
-# Vanity [![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [![GoDoc](https://godoc.org/kkn.fi/cmd/vanity?status.svg)](https://godoc.org/kkn.fi/vanity)
+# kkn.fi/vanity
+[![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [GoDoc](https://pkg.go.dev/kkn.fi/cmd)
+    
 
 ## Concepts
 - VCS is Version Control System (such as Git or Mercurial)
@@ -10,7 +11,7 @@
   kkn.fi/cmd/tcpproxy)
 
 ## Features
-- Redirects browsers to godoc.org
+- Redirects browsers to pkg.go.dev
 - Redirects Go tool to VCS
 - Redirects HTTP to HTTPS
 - Automatic configuration of packages:
