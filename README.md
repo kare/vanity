@@ -3,10 +3,10 @@
     
 
 ## Concepts
-- VCS is Version Control System (such as Git or Mercurial)
-- VCS root is the root path the source code repository (such as github.com/kare)
+- VCS is Version Control System (such as 'git')
+- Repo root is the root path the source code repository (such as 'https://github.com/kare')
 - Domain is the internet address where the Go Vanity server is hosted (such as
-  9fans.net or kkn.fi)
+  9fans.net or kkn.fi). Domain is deduced from HTTP request.
 - Path is the path component of the Go package (such as /cmd/tcpproxy in
   kkn.fi/cmd/tcpproxy)
 
@@ -19,7 +19,8 @@
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
-- Configurable logger which is fully compatible with standard log package
+- Configurable logger which is fully compatible with standard log package.
+  Stdout is default.
 
 ## Installation
 ```

@@ -8,13 +8,13 @@ import (
 	"kkn.fi/vanity"
 )
 
-func ExampleRedirect() {
-	http.Handle("/", vanity.Redirect("git", "kkn.fi", "github.com/kare"))
-	// Output:
-}
-
-func ExampleSetLogger() {
+func ExampleHandler() {
 	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
-	vanity.SetLogger(errorLog)
+	srv := vanity.Handler(
+		vanity.SetLogger(errorLog),
+		vanity.VCSURL("https://github.com/kare"),
+		vanity.VCS("git"),
+	)
+	http.Handle("/", srv)
 	// Output:
 }

@@ -2,76 +2,117 @@ package vanity
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
-var (
-	// log is error log.
-	log Logger
+type (
+	handler struct {
+		log             Logger
+		vcs             string
+		vcsURL          string
+		moduleServerURL string
+		indexPage       []byte
+	}
+	// Option represents a functional option for configuring the vanity middleware.
+	Option func(http.Handler)
+	// Logger describes functions available for logging purposes.
+	Logger interface {
+		Printf(format string, v ...interface{})
+	}
 )
 
-// Logger describes functions available for logging purposes.
-type Logger interface {
-	Printf(format string, v ...interface{})
-}
+const pkgGoDev = "https://pkg.go.dev/"
 
-// SetLogger sets the logger used by vanity package's error log.
-func SetLogger(l Logger) {
-	log = l
-}
+func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Scheme == "http" {
+		r.URL.Scheme = "https"
+		http.Redirect(w, r, r.URL.String(), http.StatusMovedPermanently)
+		return
+	}
+	if r.Method != http.MethodGet {
+		status := http.StatusMethodNotAllowed
+		http.Error(w, http.StatusText(status), status)
+		return
+	}
 
-// Redirect is an HTTP middleware that redirects browsers to pkg.go.dev or
-// Go tool to VCS repository.
-func Redirect(vcs, importPath, repoRoot string) http.Handler {
-	redirect := func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Scheme == "http" {
-			r.URL.Scheme = "https"
-			http.Redirect(w, r, r.URL.String(), http.StatusMovedPermanently)
-			return
+	if r.URL.Path == "/" || r.URL.Path == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Respond to Go tool with vcs info meta tag
+	if r.FormValue("go-get") == "1" {
+		path := r.URL.Path
+		const cmd = "/cmd/"
+		if strings.HasPrefix(r.URL.Path, cmd) {
+			path = path[len(cmd):]
 		}
-		if r.Method != http.MethodGet {
-			status := http.StatusMethodNotAllowed
-			http.Error(w, http.StatusText(status), status)
-			return
-		}
-
-		if !strings.HasPrefix(strings.TrimSuffix(r.Host+r.URL.Path, "/"), importPath+"/") {
-			http.NotFound(w, r)
-			return
-		}
-
-		// Redirect browsers to Go module site.
-		// Such as pkg.go.dev or something similar
-		if r.FormValue("go-get") != "1" {
-			goProxyHostname := "pkg.go.dev"
-			url := "https://" + goProxyHostname + "/" + r.Host + r.URL.Path
-			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-			return
-		}
-
-		var path string
-		if strings.HasPrefix(r.URL.Path, "/cmd/") {
-			path = r.URL.Path[4:]
-		} else {
-			path = r.URL.Path
-		}
-
 		// redirect github.com/kare/pkg/sub -> github.com/kare/pkg
-		vcsroot := repoRoot
+		vcsroot := h.vcsURL
 		f := func(c rune) bool { return c == '/' }
 		shortPath := strings.FieldsFunc(path, f)
 		if len(shortPath) > 0 {
-			vcsroot = repoRoot + "/" + shortPath[0]
+			vcsroot = h.vcsURL + shortPath[0]
 		}
 
-		// Respond to Go tool with vcs info meta tag
-		importRoot := r.Host + r.URL.Path
-		meta := `<meta name="go-import" content="%v %v %v">`
-		s := fmt.Sprintf(meta, importRoot, vcs, vcsroot)
-		if _, err := w.Write([]byte(s)); err != nil {
-			log.Printf("vanity: i/o error: %v", err)
+		importRoot := strings.TrimSuffix(r.Host+r.URL.Path, "/")
+		metaTag := fmt.Sprintf(`<meta name="go-import" content="%v %v %v">`, importRoot, h.vcs, vcsroot)
+		if _, err := w.Write([]byte(metaTag)); err != nil {
+			h.log.Printf("vanity: i/o error writing go tool http response: %v", err)
 		}
+		return
 	}
-	return http.HandlerFunc(redirect)
+
+	// Redirect browsers to Go module site.
+	url := fmt.Sprintf("%v%v%v", pkgGoDev, r.Host, r.URL.Path)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+// Handler is an HTTP middleware that redirects browsers to pkg.go.dev or Go
+// tool to VCS repository. VCS repository is git by default. Configurable Logger
+// defaults to os.Stdout.
+func Handler(opts ...Option) http.Handler {
+	v := &handler{
+		log:             log.New(os.Stdout, "", log.LstdFlags),
+		vcs:             "git",
+		moduleServerURL: pkgGoDev,
+	}
+	for _, option := range opts {
+		option(v)
+	}
+	return v
+}
+
+// VCS sets the version control type.
+func VCS(vcs string) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.vcs = vcs
+	}
+}
+
+func addSuffixSlash(s string) string {
+	if strings.HasSuffix(s, "/") {
+		return s
+	}
+	return s + "/"
+}
+
+// VCSURL sets the VCS repository url address.
+func VCSURL(vcsURL string) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.vcsURL = addSuffixSlash(vcsURL)
+	}
+}
+
+// SetLogger sets the logger used by vanity package's error logger.
+func SetLogger(l Logger) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.log = l
+	}
 }
