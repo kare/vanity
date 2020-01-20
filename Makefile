@@ -1,32 +1,30 @@
 
-NAME := kkn.fi/vanity
-
-GOMETALINTER := $(GOPATH)/bin/gometalinter
+name := kkn.fi/vanity
+golint := $(GOPATH)/bin/golint
 
 .PHONY: build
 build:
-	go build $(NAME)
+	go build $(name)
 
 .PHONY: test
 test:
-	go test -v $(NAME)
+	go test $(name)
 
 .PHONY: lint
-lint: $(GOMETALINTER)
-	gometalinter ./...
+lint: $(golint)
+	golint ./...
 
-$(GOMETALINTER):
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
+$(golint):
+	GO111MODULE=off go get -u golang.org/x/lint/golint
 
 .PHONY: cover
 cover:
-	go test -coverprofile=coverage.out $(NAME)
+	go test -coverprofile=coverage.out $(name)
 	go tool cover -html=coverage.out
 	@rm -f coverage.out
 
 .PHONY: heat
 heat:
-	go test -covermode=count -coverprofile=count.out $(NAME)
+	go test -covermode=count -coverprofile=count.out $(name)
 	go tool cover -html=count.out
 	@rm -f count.out
