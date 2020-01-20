@@ -1,5 +1,5 @@
 # kkn.fi/vanity
-[![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [GoDoc](https://pkg.go.dev/kkn.fi/cmd)
+[![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [GoDoc](https://pkg.go.dev/kkn.fi/vanity)
     
 
 ## Concepts
