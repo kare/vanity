@@ -1,6 +1,12 @@
 
 # Change Log
 
+## Release v0.2.2 - 2020-01-20
+- Update docs for pkg.go.dev
+- Improve tests
+- Drop text/template. Just print out <meta> tag.
+- Replace deprecated gometalinter with golint
+
 ## Release v0.2.1 - 2019-12-28
 ### Added
 - Require Go 1.13
