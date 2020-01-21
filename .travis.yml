@@ -1,14 +1,17 @@
 language: go
 go_import_path: kkn.fi/vanity
-go: "1.13.x"
-env:
-    - GO111MODULE=on
+go:
+    - "1.13.x"
+os:
+    - linux
+    - osx
+    - windows
 jobs:
     include:
         - stage: lint
           script:
               - ./ci/validate-gofmt.sh
-              - go get golang.org/x/lint/golint
+              - GOMODULE111=off go get golang.org/x/lint/golint
               - ./ci/validate-lint.sh
         - stage: test
           script: go test kkn.fi/vanity
