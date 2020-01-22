@@ -14,21 +14,46 @@ import (
 
 var addr = "https://kkn.fi"
 
-func init() {
-	vanity.SetLogger(log.New(ioutil.Discard, "", 0))
-}
-
 func TestRedirectFromHttpToHttps(t *testing.T) {
-	rec := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "http://kkn.fi", nil)
-	srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
-	srv.ServeHTTP(rec, req)
-	res := rec.Result()
-	if res.StatusCode != http.StatusMovedPermanently {
-		t.Errorf("expected response status 301, but got %v", res.StatusCode)
+	tests := []struct {
+		url      string
+		location string
+	}{
+		{
+			url:      "http://kkn.fi",
+			location: "https://kkn.fi",
+		},
+		{
+			url:      "http://kkn.fi/",
+			location: "https://kkn.fi/",
+		},
+		{
+			url:      "http://kkn.fi/pkg/sub/foo",
+			location: "https://kkn.fi/pkg/sub/foo",
+		},
+		{
+			url:      "http://kkn.fi/vanity",
+			location: "https://kkn.fi/vanity",
+		},
+		{
+			url:      "http://kkn.fi/vanity?go-get=1",
+			location: "https://kkn.fi/vanity?go-get=1",
+		},
 	}
-	if res.Header.Get("Location") != addr {
-		t.Errorf("expected response location '%v', but got '%v'", addr, res.Header.Get("Location"))
+	for _, test := range tests {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, test.url, nil)
+		srv := vanity.Handler(
+			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+		)
+		srv.ServeHTTP(rec, req)
+		res := rec.Result()
+		if res.StatusCode != http.StatusMovedPermanently {
+			t.Errorf("expected response status 301, but got %v", res.StatusCode)
+		}
+		if test.location != res.Header.Get("Location") {
+			t.Errorf("expected response location '%v', but got '%v'", test.location, res.Header.Get("Location"))
+		}
 	}
 }
 
@@ -37,18 +62,41 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		method string
 		status int
 	}{
-		{http.MethodGet, http.StatusOK},
-		{http.MethodHead, http.StatusMethodNotAllowed},
-		{http.MethodPost, http.StatusMethodNotAllowed},
-		{http.MethodPut, http.StatusMethodNotAllowed},
-		{http.MethodDelete, http.StatusMethodNotAllowed},
-		{http.MethodTrace, http.StatusMethodNotAllowed},
-		{http.MethodOptions, http.StatusMethodNotAllowed},
+		{
+			method: http.MethodGet,
+			status: http.StatusOK,
+		},
+		{
+			method: http.MethodHead,
+			status: http.StatusMethodNotAllowed,
+		},
+		{
+			method: http.MethodPost,
+			status: http.StatusMethodNotAllowed,
+		},
+		{
+			method: http.MethodPut,
+			status: http.StatusMethodNotAllowed,
+		},
+		{
+			method: http.MethodDelete,
+			status: http.StatusMethodNotAllowed,
+		},
+		{
+			method: http.MethodTrace,
+			status: http.StatusMethodNotAllowed,
+		},
+		{
+			method: http.MethodOptions,
+			status: http.StatusMethodNotAllowed,
+		},
 	}
 	for _, test := range tests {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
-		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
+		srv := vanity.Handler(
+			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != test.status {
@@ -58,69 +106,162 @@ func TestHTTPMethodsSupport(t *testing.T) {
 }
 
 func TestIndexPageNotFound(t *testing.T) {
-	rec := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", addr, nil)
-	srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
-	srv.ServeHTTP(rec, req)
-	res := rec.Result()
-	if res.StatusCode != http.StatusNotFound {
-		t.Errorf("Expected response status 404, but got %v", res.StatusCode)
-	}
-}
-
-func TestGoTool(t *testing.T) {
 	tests := []struct {
-		path   string
-		result string
+		name string
+		url  string
 	}{
-		{"/gist?go-get=1", "kkn.fi/gist git https://github.com/kare/gist"},
-		{"/set?go-get=1", "kkn.fi/set git https://github.com/kare/set"},
-		{"/cmd/vanity?go-get=1", "kkn.fi/cmd/vanity git https://github.com/kare/vanity"},
-		{"/cmd/tcpproxy?go-get=1", "kkn.fi/cmd/tcpproxy git https://github.com/kare/tcpproxy"},
-		{"/pkg/subpkg?go-get=1", "kkn.fi/pkg/subpkg git https://github.com/kare/pkg"},
+		{
+			name: "with trailing slash",
+			url:  "https://kkn.fi/",
+		},
+		{
+			name: "without trailing slash",
+			url:  "https://kkn.fi",
+		},
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", addr+test.path, nil)
-		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
+		req := httptest.NewRequest(http.MethodGet, test.url, nil)
+		srv := vanity.Handler(
+			vanity.VCSURL("https://github.com/kare"),
+			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+		)
 		srv.ServeHTTP(rec, req)
-
 		res := rec.Result()
-		body, _ := ioutil.ReadAll(res.Body)
-		expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
-		if !strings.Contains(string(body), expected) {
-			t.Errorf("Expecting url '%v' body to contain html meta tag: '%v', but got:\n'%v'", test.path, expected, string(body))
-		}
-
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Expected response status 200, but got %v", res.StatusCode)
+		if res.StatusCode != http.StatusNotFound {
+			t.Errorf("%v: expected response status 404, but got %v\n", test.name, res.StatusCode)
 		}
 	}
 }
 
 func TestBrowserGoDoc(t *testing.T) {
 	tests := []struct {
-		path   string
-		result string
+		path         string
+		moduleServer string
+		result       string
 	}{
-		{"/gist", "https://pkg.go.dev/kkn.fi/gist"},
-		{"/set", "https://pkg.go.dev/kkn.fi/set"},
-		{"/cmd/vanity", "https://pkg.go.dev/kkn.fi/cmd/vanity"},
-		{"/cmd/tcpproxy", "https://pkg.go.dev/kkn.fi/cmd/tcpproxy"},
-		{"/pkgabc/sub/foo", "https://pkg.go.dev/kkn.fi/pkgabc/sub"},
+		{
+			path:         "/gist",
+			moduleServer: "https://pkg.go.dev/",
+			result:       "https://pkg.go.dev/kkn.fi/gist",
+		},
+		{
+			path:         "/gist/",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/gist",
+		},
+		{
+			path:         "/set",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/set",
+		},
+		{
+			path:         "/cmd/kkn.fi-srv",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/cmd/kkn.fi-srv",
+		},
+		{
+			path:         "/cmd/tcpproxy/",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/cmd/tcpproxy",
+		},
+		{
+			path:         "/pkgabc/sub/foo",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/pkgabc/sub",
+		},
+		{
+			path:         "/pkgabc/sub/foo",
+			moduleServer: "https://pkg.go.dev",
+			result:       "https://pkg.go.dev/kkn.fi/pkgabc/sub",
+		},
+		{
+			path:         "/vanity",
+			moduleServer: "",
+			result:       "https://pkg.go.dev/kkn.fi/vanity",
+		},
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", addr+test.path, nil)
-		srv := vanity.Redirect("git", "kkn.fi", "https://github.com/kare")
+		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
+		srv := vanity.Handler(
+			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusTemporaryRedirect {
-			t.Errorf("Expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
+			t.Errorf("expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
 		}
 		body, _ := ioutil.ReadAll(res.Body)
 		if !strings.Contains(string(body), test.result) {
-			t.Errorf("Expecting '%v' be contained in '%v'", test.result, string(body))
+			t.Errorf("expecting\n%v be contained in\n%v", test.result, string(body))
+		}
+	}
+}
+
+func TestGoTool(t *testing.T) {
+	tests := []struct {
+		path   string
+		vcs    string
+		vcsURL string
+		result string
+	}{
+		{
+			path:   "/gist?go-get=1",
+			vcs:    "hg",
+			vcsURL: "https://bitbucket.org/kare/",
+			result: "kkn.fi/gist hg https://bitbucket.org/kare/gist",
+		},
+		{
+			path:   "/set/?go-get=1",
+			vcs:    "hg",
+			vcsURL: "https://bitbucket.org/kare",
+			result: "kkn.fi/set hg https://bitbucket.org/kare/set",
+		},
+		{
+			path:   "/cmd/kkn.fi-srv?go-get=1",
+			vcs:    "git",
+			vcsURL: "https://github.com/kare/",
+			result: "kkn.fi/cmd/kkn.fi-srv git https://github.com/kare/kkn.fi-srv",
+		},
+		{
+			path:   "/cmd/kkn.fi-srv/?go-get=1",
+			vcs:    "git",
+			vcsURL: "https://github.com/kare",
+			result: "kkn.fi/cmd/kkn.fi-srv git https://github.com/kare/kkn.fi-srv",
+		},
+		{
+			path:   "/pkgabc/sub/foo?go-get=1",
+			vcs:    "git",
+			vcsURL: "https://github.com/kare",
+			result: "kkn.fi/pkgabc/sub/foo git https://github.com/kare/pkgabc",
+		},
+		{
+			path:   "/pkgabc/sub/foo/?go-get=1",
+			vcs:    "git",
+			vcsURL: "https://github.com/kare",
+			result: "kkn.fi/pkgabc/sub/foo git https://github.com/kare/pkgabc",
+		},
+	}
+	for _, test := range tests {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
+		srv := vanity.Handler(
+			vanity.VCS(test.vcs),
+			vanity.VCSURL(test.vcsURL),
+			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+		)
+		srv.ServeHTTP(rec, req)
+
+		res := rec.Result()
+		body, _ := ioutil.ReadAll(res.Body)
+		expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
+		if !strings.Contains(string(body), expected) {
+			t.Errorf("expecting url '%v' body to contain html meta tag:\n%v, but got:\n%v", test.path, expected, string(body))
+		}
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected response status 200, but got %v", res.StatusCode)
 		}
 	}
 }

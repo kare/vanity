@@ -1,6 +1,13 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.1 - 2020-01-21
+- Replace vanity.Redirect() with vanity.Handler()
+	- Add SetLogger(), VCS() and VCSURL() functional options for configuring Handler
+- Update docs
+- Rewrite example
+- Improve tests
+
 ## Release v0.2.2 - 2020-01-20
 - Update docs for pkg.go.dev
 - Improve tests
