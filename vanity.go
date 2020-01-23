@@ -14,7 +14,6 @@ type (
 		vcs             string
 		vcsURL          string
 		moduleServerURL string
-		indexPage       []byte
 	}
 	// Option represents a functional option for configuring the vanity middleware.
 	Option func(http.Handler)
