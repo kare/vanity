@@ -1,5 +1,5 @@
 name: Test
-on: [push, pull_request, tags]
+on: [push, pull_request, tag]
 name: Test
 jobs:
   test:
