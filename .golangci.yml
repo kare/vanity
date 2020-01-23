@@ -1,0 +1,25 @@
+run:
+  tests: false
+  output:
+    format: tab
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - dupl
+    - errcheck
+    - gas
+    - gochecknoglobals
+    - gochecknoinits
+    - gocyclo
+    - goimports
+    - golint
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - structcheck
+    - typecheck
+    - unconvert
+    - varcheck
