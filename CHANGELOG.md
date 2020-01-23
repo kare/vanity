@@ -1,6 +1,9 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.2 - 2020-01-23
+- Add configurable option ModuleServerURL() for setting the used Go module server address.
+
 ## Release v1.0.0-alpha.1 - 2020-01-21
 - Replace vanity.Redirect() with vanity.Handler()
 	- Add SetLogger(), VCS() and VCSURL() functional options for configuring Handler

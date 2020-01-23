@@ -180,11 +180,22 @@ func TestBrowserGoDoc(t *testing.T) {
 			moduleServer: "",
 			result:       "https://pkg.go.dev/kkn.fi/vanity",
 		},
+		{
+			path:         "/vanity",
+			moduleServer: "https://search.gocenter.io",
+			result:       "https://search.gocenter.io/kkn.fi~2Fvanity/info",
+		},
+		{
+			path:         "/grpc-ecosystem/grpc-gateway",
+			moduleServer: "https://search.gocenter.io/",
+			result:       "https://search.gocenter.io/kkn.fi~2Fgrpc-ecosystem~2Fgrpc-gateway/info",
+		},
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
 		srv := vanity.Handler(
+			vanity.ModuleServerURL(test.moduleServer),
 			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)

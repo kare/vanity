@@ -21,6 +21,7 @@
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
 - Configurable logger which is fully compatible with standard log package.
   Stdout is default.
+- Module server address can be configured.
 
 ## Installation
 ```
