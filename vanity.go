@@ -23,7 +23,12 @@ type (
 	}
 )
 
-const pkgGoDev = "https://pkg.go.dev/"
+const (
+	// pkgGoDev is the default module server by Google.
+	pkgGoDev = "https://pkg.go.dev/"
+	// searchGocenterIo is a module server by JFrog.
+	searchGocenterIo = "https://search.gocenter.io/"
+)
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Scheme == "http" {
@@ -66,13 +71,30 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect browsers to Go module site.
-	url := fmt.Sprintf("%v%v%v", pkgGoDev, r.Host, r.URL.Path)
+	url := h.browserURL(r.Host, r.URL.Path)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// Handler is an HTTP middleware that redirects browsers to pkg.go.dev or Go
-// tool to VCS repository. VCS repository is git by default. Configurable Logger
-// defaults to os.Stdout.
+func (h *handler) browserURL(host, path string) string {
+	switch h.moduleServerURL {
+	case searchGocenterIo:
+		pkg := strings.ReplaceAll(path, "/", "~2F")
+		return fmt.Sprintf("%v%v%v/info", searchGocenterIo, host, pkg)
+	case pkgGoDev:
+		fallthrough
+	default:
+		pkg := path
+		return fmt.Sprintf("%v%v%v", pkgGoDev, host, pkg)
+	}
+}
+
+// Handler is an HTTP middleware that redirects browsers to Go module server
+// (pkg.go.dev or similar) or Go tool to VCS repository. VCS repository is git
+// by default. VCS can be set with VCS(). Configurable Logger defaults to
+// os.Stdout. Logger can be configured with SetLogger(). Module server URL is
+// https://pkg.go.dev/ and it can be configured via ModuleServerURL() func.
+// VCSURL() func must be used to set VCS repository URL (such as
+// https://github.com/kare/).
 func Handler(opts ...Option) http.Handler {
 	v := &handler{
 		log:             log.New(os.Stdout, "", log.LstdFlags),
@@ -113,5 +135,13 @@ func SetLogger(l Logger) Option {
 	return func(h http.Handler) {
 		v := h.(*handler)
 		v.log = l
+	}
+}
+
+// ModuleServerURL sets Go module server address for browser redirect.
+func ModuleServerURL(moduleServerURL string) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.moduleServerURL = addSuffixSlash(moduleServerURL)
 	}
 }
