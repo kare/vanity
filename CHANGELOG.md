@@ -1,6 +1,9 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.3 - 2020-02-05
+- Support index HTML page on the root of the server
+
 ## Release v1.0.0-alpha.2 - 2020-01-23
 - Add configurable option ModuleServerURL() for setting the used Go module server address.
 
