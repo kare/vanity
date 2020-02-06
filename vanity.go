@@ -17,6 +17,12 @@ type (
 		vcsURL          string
 		moduleServerURL string
 		indexPage       []byte
+		static          *staticContent
+	}
+	staticContent struct {
+		uRLPath string
+		path    string
+		fs      http.Handler
 	}
 	// Option represents a functional option for configuring the vanity middleware.
 	Option func(http.Handler)
@@ -42,6 +48,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		status := http.StatusMethodNotAllowed
 		http.Error(w, http.StatusText(status), status)
+		return
+	}
+
+	if h.static != nil && strings.HasPrefix(r.URL.Path, h.static.uRLPath) {
+		h.static.fs.ServeHTTP(w, r)
 		return
 	}
 
@@ -167,6 +178,21 @@ func IndexPage(page io.Reader) Option {
 		var err error
 		if v.indexPage, err = ioutil.ReadAll(page); err != nil {
 			v.log.Printf("vanity: i/o error while reading index page input: %v", err)
+		}
+	}
+}
+
+// StaticContent serves a file system directory over HTTP. Given path is the local
+// file system path to directory. Given urlPath is the path portition of the URL for the server.
+func StaticContent(path, URLPath string) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		dir := http.Dir(path)
+		server := http.FileServer(dir)
+		v.static = &staticContent{
+			path:    path,
+			uRLPath: URLPath,
+			fs:      http.StripPrefix(URLPath, server),
 		}
 	}
 }
