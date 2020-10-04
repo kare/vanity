@@ -12,7 +12,7 @@ test:
 
 .PHONY: lint
 lint: $(golint)
-	golint ./...
+	golangci-lint run --config .golangci.yml ./...
 
 $(golint):
 	GO111MODULE=off go get -u golang.org/x/lint/golint

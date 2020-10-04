@@ -125,6 +125,7 @@ func TestIndexPageNotFound(t *testing.T) {
 		srv := vanity.Handler(
 			vanity.VCSURL("https://github.com/kare"),
 			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.StaticDir("/not-found", "/.static/"),
 		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
@@ -277,7 +278,7 @@ func TestGoTool(t *testing.T) {
 	}
 }
 
-func TestIndexPage(t *testing.T) {
+func TestStaticDir(t *testing.T) {
 	tests := []struct {
 		name string
 		url  string
@@ -295,7 +296,7 @@ func TestIndexPage(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv := vanity.Handler(
-			vanity.IndexPage(strings.NewReader("<html>homepage</html>")),
+			vanity.StaticDir("testdata", "dir"),
 			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
@@ -305,44 +306,7 @@ func TestIndexPage(t *testing.T) {
 		}
 
 		body, _ := ioutil.ReadAll(res.Body)
-		expected := "<html>homepage</html>"
-		if string(body) != expected {
-			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
-		}
-
-	}
-}
-
-func TestStaticContent(t *testing.T) {
-	tests := []struct {
-		name string
-		url  string
-	}{
-		{
-			name: "with trailing slash",
-			url:  "https://kkn.fi/",
-		},
-		{
-			name: "without trailing slash",
-			url:  "https://kkn.fi",
-		},
-	}
-	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv := vanity.Handler(
-			vanity.IndexPage(strings.NewReader("<html>homepage</html>")),
-			vanity.StaticContent("path", "urlPath"),
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
-		)
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
-		}
-
-		body, _ := ioutil.ReadAll(res.Body)
-		expected := "<html>homepage</html>"
+		expected := "<html>homepage</html>\n"
 		if string(body) != expected {
 			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
 		}

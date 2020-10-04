@@ -2,8 +2,6 @@ package vanity
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,10 +14,9 @@ type (
 		vcs             string
 		vcsURL          string
 		moduleServerURL string
-		indexPage       []byte
-		static          *staticContent
+		static          *staticDir
 	}
-	staticContent struct {
+	staticDir struct {
 		uRLPath string
 		path    string
 		fs      http.Handler
@@ -57,11 +54,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/" || r.URL.Path == "" {
-		if len(h.indexPage) > 0 {
-			h.indexPageHandler(w, r)
-			return
-		}
-		http.NotFound(w, r)
+		h.indexPageHandler(w, r)
 		return
 	}
 
@@ -95,9 +88,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	if _, err := w.Write(h.indexPage); err != nil {
-		h.log.Printf("vanity: i/o error writing index page http response: %v", err)
-	}
+	w.Header().Set("Content-Language", "en")
+	w.Header().Set("Cache-Control", "private")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+
+	http.ServeFile(w, r, h.static.path+"/index.html")
 }
 
 func (h *handler) browserURL(host, path string) string {
@@ -171,25 +166,14 @@ func ModuleServerURL(moduleServerURL string) Option {
 	}
 }
 
-// IndexPage reads given page io.Reader for WWW content and serves it at server root.
-func IndexPage(page io.Reader) Option {
-	return func(h http.Handler) {
-		v := h.(*handler)
-		var err error
-		if v.indexPage, err = ioutil.ReadAll(page); err != nil {
-			v.log.Printf("vanity: i/o error while reading index page input: %v", err)
-		}
-	}
-}
-
-// StaticContent serves a file system directory over HTTP. Given path is the local
+// StaticDir serves a file system directory over HTTP. Given path is the local
 // file system path to directory. Given urlPath is the path portition of the URL for the server.
-func StaticContent(path, URLPath string) Option {
+func StaticDir(path, URLPath string) Option {
 	return func(h http.Handler) {
 		v := h.(*handler)
 		dir := http.Dir(path)
 		server := http.FileServer(dir)
-		v.static = &staticContent{
+		v.static = &staticDir{
 			path:    path,
 			uRLPath: URLPath,
 			fs:      http.StripPrefix(URLPath, server),
