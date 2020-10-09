@@ -34,6 +34,8 @@ const (
 	pkgGoDev = "https://pkg.go.dev/"
 	// searchGocenterIo is a module server by JFrog.
 	searchGocenterIo = "https://search.gocenter.io/"
+	// gitHub is not an actual module server, but a source code repository.
+	gitHub = "https://github.com/"
 )
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -67,8 +69,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		// redirect github.com/kare/pkg/sub -> github.com/kare/pkg
 		vcsroot := h.vcsURL
-		f := func(c rune) bool { return c == '/' }
-		shortPath := strings.FieldsFunc(path, f)
+		shortPath := pathComponents(path)
 		if len(shortPath) > 0 {
 			vcsroot = h.vcsURL + shortPath[0]
 		}
@@ -86,6 +87,13 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
+func pathComponents(path string) []string {
+	f := func(c rune) bool {
+		return c == '/'
+	}
+	return strings.FieldsFunc(path, f)
+}
+
 func (h *handler) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 	w.Header().Set("Content-Language", "en")
@@ -96,6 +104,14 @@ func (h *handler) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) browserURL(host, path string) string {
+	// host = kkn.fi
+	// path = /foo/bar
+
+	if strings.HasPrefix(h.moduleServerURL, gitHub) {
+		pkg := path
+		components := pathComponents(pkg)
+		return stripSuffixSlash(h.moduleServerURL) + "/" + components[len(components)-1]
+	}
 	switch h.moduleServerURL {
 	case searchGocenterIo:
 		pkg := strings.ReplaceAll(path, "/", "~2F")
@@ -106,6 +122,13 @@ func (h *handler) browserURL(host, path string) string {
 		pkg := path
 		return fmt.Sprintf("%v%v%v", pkgGoDev, host, pkg)
 	}
+}
+
+func stripSuffixSlash(s string) string {
+	if strings.HasSuffix(s, "/") {
+		return s[0 : len(s)-1]
+	}
+	return s
 }
 
 // Handler is an HTTP middleware that redirects browsers to Go module server

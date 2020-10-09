@@ -191,6 +191,16 @@ func TestBrowserGoDoc(t *testing.T) {
 			moduleServer: "https://search.gocenter.io/",
 			result:       "https://search.gocenter.io/kkn.fi~2Fgrpc-ecosystem~2Fgrpc-gateway/info",
 		},
+		{
+			path:         "/cmd/healthcheck",
+			moduleServer: "https://github.com/kare",
+			result:       "https://github.com/kare/healthcheck",
+		},
+		{
+			path:         "/vanity",
+			moduleServer: "https://github.com/kare/",
+			result:       "https://github.com/kare/vanity",
+		},
 	}
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
