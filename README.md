@@ -1,5 +1,5 @@
 # kkn.fi/vanity
-[![Build Status](https://travis-ci.org/kare/vanity.svg?branch=master)](https://travis-ci.org/kare/vanity) [GoDoc](https://pkg.go.dev/kkn.fi/vanity)
+[![Build Status](https://github.com/kare/vanity/workflows/test/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3ATest) ![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/kkn.fi/vanity) [![GoReportCard](https://goreportcard.com/badge/github.com/kare/vanity)](https://goreportcard.com/report/github.com/kare/vanity)
     
 
 ## Concepts
@@ -22,6 +22,9 @@
 - Configurable logger which is fully compatible with standard log package.
   Stdout is default.
 - Module server address can be configured.
+	- Module Server options are:
+		- https://pkg.go.dev/
+		- https://search.gocenter.io/
 
 ## Installation
 ```

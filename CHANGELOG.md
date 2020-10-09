@@ -1,6 +1,9 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.4 - 2020-09-10
+- Support configurable static file directory with optional index.html file.
+
 ## Release v1.0.0-alpha.3 - 2020-02-05
 - Support index HTML page on the root of the server
 
