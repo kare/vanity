@@ -15,6 +15,7 @@ func ExampleHandler() {
 		vanity.SetLogger(errorLog),
 		vanity.VCSURL("https://github.com/kare"),
 		vanity.VCS("git"),
+		vanity.StaticDir("testdata", "/.static/"),
 	)
 	http.Handle("/", srv)
 	// Output:
