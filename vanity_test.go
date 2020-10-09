@@ -44,7 +44,7 @@ func TestRedirectFromHttpToHttps(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv := vanity.Handler(
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
@@ -95,7 +95,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
 		srv := vanity.Handler(
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
@@ -124,7 +124,7 @@ func TestIndexPageNotFound(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv := vanity.Handler(
 			vanity.VCSURL("https://github.com/kare"),
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 			vanity.StaticDir("/not-found", "/.static/"),
 		)
 		srv.ServeHTTP(rec, req)
@@ -197,7 +197,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
 		srv := vanity.Handler(
 			vanity.ModuleServerURL(test.moduleServer),
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
@@ -261,7 +261,7 @@ func TestGoTool(t *testing.T) {
 		srv := vanity.Handler(
 			vanity.VCS(test.vcs),
 			vanity.VCSURL(test.vcsURL),
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
 
@@ -297,7 +297,7 @@ func TestStaticDir(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv := vanity.Handler(
 			vanity.StaticDir("testdata", "dir"),
-			vanity.SetLogger(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()

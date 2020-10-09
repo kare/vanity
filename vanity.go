@@ -150,8 +150,8 @@ func VCSURL(vcsURL string) Option {
 	}
 }
 
-// SetLogger sets the logger used by vanity package's error logger.
-func SetLogger(l Logger) Option {
+// Log sets the logger used by vanity package's error logger.
+func Log(l Logger) Option {
 	return func(h http.Handler) {
 		v := h.(*handler)
 		v.log = l
