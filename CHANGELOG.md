@@ -3,6 +3,7 @@
 
 ## Release v1.0.0-alpha.5 - 2020-TODO
 - Support GitHub as a vanity.ModuleServerURL() option. For example: Use https://github.com/kare/ as a module server url.
+- Require Go 1.14
 
 ## Release v1.0.0-alpha.4 - 2020-09-10
 - Support configurable static file directory with optional index.html file.
