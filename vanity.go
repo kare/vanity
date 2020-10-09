@@ -30,12 +30,12 @@ type (
 )
 
 const (
-	// pkgGoDev is the default module server by Google.
-	pkgGoDev = "https://pkg.go.dev/"
-	// searchGocenterIo is a module server by JFrog.
-	searchGocenterIo = "https://search.gocenter.io/"
-	// gitHub is not an actual module server, but a source code repository.
-	gitHub = "https://github.com/"
+	// mPkgGoDev is the default module server by Google.
+	mPkgGoDev = "https://pkg.go.dev/"
+	// mSearchGocenterIo is a module server by JFrog.
+	mSearchGocenterIo = "https://search.gocenter.io/"
+	// mGitHub is not an actual module server, but a source code repository.
+	mGitHub = "https://github.com/"
 )
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -107,20 +107,20 @@ func (h *handler) browserURL(host, path string) string {
 	// host = kkn.fi
 	// path = /foo/bar
 
-	if strings.HasPrefix(h.moduleServerURL, gitHub) {
+	if strings.HasPrefix(h.moduleServerURL, mGitHub) {
 		pkg := path
 		components := pathComponents(pkg)
 		return stripSuffixSlash(h.moduleServerURL) + "/" + components[len(components)-1]
 	}
 	switch h.moduleServerURL {
-	case searchGocenterIo:
+	case mSearchGocenterIo:
 		pkg := strings.ReplaceAll(path, "/", "~2F")
-		return fmt.Sprintf("%v%v%v/info", searchGocenterIo, host, pkg)
-	case pkgGoDev:
+		return fmt.Sprintf("%v%v%v/info", mSearchGocenterIo, host, pkg)
+	case mPkgGoDev:
 		fallthrough
 	default:
 		pkg := path
-		return fmt.Sprintf("%v%v%v", pkgGoDev, host, pkg)
+		return fmt.Sprintf("%v%v%v", mPkgGoDev, host, pkg)
 	}
 }
 
@@ -142,7 +142,7 @@ func Handler(opts ...Option) http.Handler {
 	v := &handler{
 		log:             log.New(os.Stdout, "", log.LstdFlags),
 		vcs:             "git",
-		moduleServerURL: pkgGoDev,
+		moduleServerURL: mPkgGoDev,
 	}
 	for _, option := range opts {
 		option(v)
