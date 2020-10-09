@@ -11,20 +11,20 @@
   kkn.fi/cmd/tcpproxy)
 
 ## Features
-- Redirects browsers to pkg.go.dev
 - Redirects Go tool to VCS
+- Redirects browsers to pkg.go.dev module server by default. Module Server URL is configurable.
+- Module server URL options are.
+	- https://pkg.go.dev/
+	- https://search.gocenter.io/
+	- https://github.com/YOUR_USERNAME/
 - Redirects HTTP to HTTPS
 - Automatic configuration of packages:
 	- All packages are redirected with full path to vcsroot.
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
-- Configurable logger which is fully compatible with standard log package.
-  Stdout is default.
-- Module server address can be configured.
-	- Module Server options are:
-		- https://pkg.go.dev/
-		- https://search.gocenter.io/
+- Configurable logger which is fully compatible with standard log package. Stdout is default.
+- Supports index HTML file in the domain root and configurable static content directory (for images, CSS, and etc). 
 
 ## Installation
 ```
