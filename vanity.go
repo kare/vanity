@@ -10,11 +10,12 @@ import (
 
 type (
 	handler struct {
-		log             Logger
-		vcs             string
-		vcsURL          string
-		moduleServerURL string
-		static          *staticDir
+		log              Logger
+		vcs              string
+		vcsURL           string
+		moduleServerURL  string
+		static           *staticDir
+		indexPageHandler http.Handler
 	}
 	staticDir struct {
 		uRLPath string
@@ -38,6 +39,13 @@ const (
 	mGitHub = "https://github.com/"
 )
 
+// DefaultIndexPageHandler serves given indexFilePath over HTTP via http.ServeFile(w, r, name).
+func DefaultIndexPageHandler(indexFilePath string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, indexFilePath)
+	})
+}
+
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Scheme == "http" {
 		r.URL.Scheme = "https"
@@ -56,8 +64,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/" || r.URL.Path == "" {
-		h.indexPageHandler(w, r)
-		return
+		if h.indexPageHandler != nil {
+			h.indexPageHandler.ServeHTTP(w, r)
+			return
+		}
+		DefaultIndexPageHandler(h.static.path+"/index.html").ServeHTTP(w, r)
 	}
 
 	// Respond to Go tool with vcs info meta tag
@@ -92,15 +103,6 @@ func pathComponents(path string) []string {
 		return c == '/'
 	}
 	return strings.FieldsFunc(path, f)
-}
-
-func (h *handler) indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	w.Header().Set("Content-Language", "en")
-	w.Header().Set("Cache-Control", "private")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-
-	http.ServeFile(w, r, h.static.path+"/index.html")
 }
 
 func (h *handler) browserURL(host, path string) string {
@@ -193,6 +195,7 @@ func ModuleServerURL(moduleServerURL string) Option {
 // file system path to directory. Given urlPath is the path portition of the URL for the server.
 func StaticDir(path, URLPath string) Option {
 	return func(h http.Handler) {
+		// TODO: path must be a readable directory or fail
 		v := h.(*handler)
 		dir := http.Dir(path)
 		server := http.FileServer(dir)
@@ -201,5 +204,13 @@ func StaticDir(path, URLPath string) Option {
 			uRLPath: URLPath,
 			fs:      http.StripPrefix(URLPath, server),
 		}
+	}
+}
+
+// IndexPageHandler sets a handler for index.html page.
+func IndexPageHandler(index http.Handler) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.indexPageHandler = index
 	}
 }
