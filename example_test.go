@@ -12,10 +12,11 @@ func ExampleHandler() {
 	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
 	srv := vanity.Handler(
 		vanity.ModuleServerURL("https://pkg.go.dev"),
-		vanity.SetLogger(errorLog),
+		vanity.Log(errorLog),
 		vanity.VCSURL("https://github.com/kare"),
 		vanity.VCS("git"),
 		vanity.StaticDir("testdata", "/.static/"),
+		vanity.IndexPageHandler((vanity.DefaultIndexPageHandler("testdata"+"/index.html"))),
 	)
 	http.Handle("/", srv)
 	// Output:

@@ -10,11 +10,12 @@ import (
 
 type (
 	handler struct {
-		log             Logger
-		vcs             string
-		vcsURL          string
-		moduleServerURL string
-		static          *staticDir
+		log              Logger
+		vcs              string
+		vcsURL           string
+		moduleServerURL  string
+		static           *staticDir
+		indexPageHandler http.Handler
 	}
 	staticDir struct {
 		uRLPath string
@@ -30,11 +31,20 @@ type (
 )
 
 const (
-	// pkgGoDev is the default module server by Google.
-	pkgGoDev = "https://pkg.go.dev/"
-	// searchGocenterIo is a module server by JFrog.
-	searchGocenterIo = "https://search.gocenter.io/"
+	// mPkgGoDev is the default module server by Google.
+	mPkgGoDev = "https://pkg.go.dev/"
+	// mSearchGocenterIo is a module server by JFrog.
+	mSearchGocenterIo = "https://search.gocenter.io/"
+	// mGitHub is not an actual module server, but a source code repository.
+	mGitHub = "https://github.com/"
 )
+
+// DefaultIndexPageHandler serves given indexFilePath over HTTP via http.ServeFile(w, r, name).
+func DefaultIndexPageHandler(indexFilePath string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, indexFilePath)
+	})
+}
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Scheme == "http" {
@@ -54,8 +64,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/" || r.URL.Path == "" {
-		h.indexPageHandler(w, r)
-		return
+		if h.indexPageHandler != nil {
+			h.indexPageHandler.ServeHTTP(w, r)
+			return
+		}
+		DefaultIndexPageHandler(h.static.path+"/index.html").ServeHTTP(w, r)
 	}
 
 	// Respond to Go tool with vcs info meta tag
@@ -67,8 +80,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		// redirect github.com/kare/pkg/sub -> github.com/kare/pkg
 		vcsroot := h.vcsURL
-		f := func(c rune) bool { return c == '/' }
-		shortPath := strings.FieldsFunc(path, f)
+		shortPath := pathComponents(path)
 		if len(shortPath) > 0 {
 			vcsroot = h.vcsURL + shortPath[0]
 		}
@@ -86,26 +98,39 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (h *handler) indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	w.Header().Set("Content-Language", "en")
-	w.Header().Set("Cache-Control", "private")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-
-	http.ServeFile(w, r, h.static.path+"/index.html")
+func pathComponents(path string) []string {
+	f := func(c rune) bool {
+		return c == '/'
+	}
+	return strings.FieldsFunc(path, f)
 }
 
 func (h *handler) browserURL(host, path string) string {
+	// host = kkn.fi
+	// path = /foo/bar
+
+	if strings.HasPrefix(h.moduleServerURL, mGitHub) {
+		pkg := path
+		components := pathComponents(pkg)
+		return stripSuffixSlash(h.moduleServerURL) + "/" + components[len(components)-1]
+	}
 	switch h.moduleServerURL {
-	case searchGocenterIo:
+	case mSearchGocenterIo:
 		pkg := strings.ReplaceAll(path, "/", "~2F")
-		return fmt.Sprintf("%v%v%v/info", searchGocenterIo, host, pkg)
-	case pkgGoDev:
+		return fmt.Sprintf("%v%v%v/info", mSearchGocenterIo, host, pkg)
+	case mPkgGoDev:
 		fallthrough
 	default:
 		pkg := path
-		return fmt.Sprintf("%v%v%v", pkgGoDev, host, pkg)
+		return fmt.Sprintf("%v%v%v", mPkgGoDev, host, pkg)
 	}
+}
+
+func stripSuffixSlash(s string) string {
+	if strings.HasSuffix(s, "/") {
+		return s[0 : len(s)-1]
+	}
+	return s
 }
 
 // Handler is an HTTP middleware that redirects browsers to Go module server
@@ -119,7 +144,7 @@ func Handler(opts ...Option) http.Handler {
 	v := &handler{
 		log:             log.New(os.Stdout, "", log.LstdFlags),
 		vcs:             "git",
-		moduleServerURL: pkgGoDev,
+		moduleServerURL: mPkgGoDev,
 	}
 	for _, option := range opts {
 		option(v)
@@ -150,8 +175,8 @@ func VCSURL(vcsURL string) Option {
 	}
 }
 
-// SetLogger sets the logger used by vanity package's error logger.
-func SetLogger(l Logger) Option {
+// Log sets the logger used by vanity package's error logger.
+func Log(l Logger) Option {
 	return func(h http.Handler) {
 		v := h.(*handler)
 		v.log = l
@@ -170,6 +195,7 @@ func ModuleServerURL(moduleServerURL string) Option {
 // file system path to directory. Given urlPath is the path portition of the URL for the server.
 func StaticDir(path, URLPath string) Option {
 	return func(h http.Handler) {
+		// TODO: path must be a readable directory or fail
 		v := h.(*handler)
 		dir := http.Dir(path)
 		server := http.FileServer(dir)
@@ -178,5 +204,13 @@ func StaticDir(path, URLPath string) Option {
 			uRLPath: URLPath,
 			fs:      http.StripPrefix(URLPath, server),
 		}
+	}
+}
+
+// IndexPageHandler sets a handler for index.html page.
+func IndexPageHandler(index http.Handler) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		v.indexPageHandler = index
 	}
 }

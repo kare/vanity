@@ -1,6 +1,15 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.5 - 2020-10-15
+- Support GitHub as a vanity.ModuleServerURL() option. For example: Use https://github.com/kare/ as a module server url.
+- Require Go 1.14
+- Add IndexPageHandler() for serving index.html page from static file directory root.
+- DefaultIndexPageHandler() uses static content directory path + "/index.html" as a default.
+
+## Release v1.0.0-alpha.4 - 2020-09-10
+- Support configurable static file directory with optional index.html file.
+
 ## Release v1.0.0-alpha.3 - 2020-02-05
 - Support index HTML page on the root of the server
 
