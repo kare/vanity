@@ -322,3 +322,34 @@ func TestStaticDir(t *testing.T) {
 		}
 	}
 }
+
+func TestRobotsTxt(t *testing.T) {
+	tests := []struct {
+		name string
+		url  string
+	}{
+		{
+			name: "GET /robots.txt",
+			url:  "https://kkn.fi/robots.txt",
+		},
+	}
+	for _, test := range tests {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, test.url, nil)
+		srv := vanity.Handler(
+			vanity.RobotsTxt(""),
+			//vanity.Log(log.New(ioutil.Discard, "", 0)),
+		)
+		srv.ServeHTTP(rec, req)
+		res := rec.Result()
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
+		}
+
+		body, _ := ioutil.ReadAll(res.Body)
+		expected := vanity.DefaultRobotsTxt
+		if string(body) != expected {
+			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
+		}
+	}
+}

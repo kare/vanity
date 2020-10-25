@@ -1,6 +1,9 @@
 
 # Change Log
 
+## Release v1.0.0-alpha.6 - 2020-TODO
+- Add support for GET /robots.txt
+
 ## Release v1.0.0-alpha.5 - 2020-10-15
 - Support GitHub as a vanity.ModuleServerURL() option. For example: Use https://github.com/kare/ as a module server url.
 - Require Go 1.14
