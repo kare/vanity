@@ -5,7 +5,7 @@ run:
 linters:
   disable-all: true
   enable:
-#    - bodyclose
+    - bodyclose
     - deadcode
     - dupl
     - errcheck
