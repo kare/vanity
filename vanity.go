@@ -16,6 +16,7 @@ type (
 		moduleServerURL  string
 		static           *staticDir
 		indexPageHandler http.Handler
+		robotsTxt        string
 	}
 	staticDir struct {
 		uRLPath string
@@ -69,6 +70,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		DefaultIndexPageHandler(h.static.path+"/index.html").ServeHTTP(w, r)
+	}
+
+	if (r.URL.Path == "/robots.txt") {
+		fmt.Fprintf(w, "%s", h.robotsTxt)
+		return
 	}
 
 	// Respond to Go tool with vcs info meta tag
@@ -212,5 +218,17 @@ func IndexPageHandler(index http.Handler) Option {
 	return func(h http.Handler) {
 		v := h.(*handler)
 		v.indexPageHandler = index
+	}
+}
+
+// RobotsTxt takes in option robotsTxt value. If value is empty, the value of DefaultRobotsTxt is used
+func RobotsTxt(robotsTxt string) Option {
+	return func(h http.Handler) {
+		v := h.(*handler)
+		if robotsTxt != "" {
+			v.robotsTxt = robotsTxt
+		} else {
+			v.robotsTxt = DefaultRobotsTxt
+		}
 	}
 }
