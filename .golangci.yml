@@ -10,7 +10,7 @@ linters:
     - dupl
     - errcheck
     - gas
-    - gochecknoglobals
+#    - gochecknoglobals
     - gochecknoinits
     - gocyclo
     - goimports
