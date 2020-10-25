@@ -27,7 +27,7 @@
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
 - Configurable logger which is fully compatible with standard log package. Stdout is default.
 - Supports index HTML file in the domain root and configurable static content directory (for images, CSS, and etc). 
-- Supports /robots.txt file
+- Supports [robots.txt file](https://www.robotstxt.org)
 
 ## Installation
 ```
