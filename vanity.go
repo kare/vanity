@@ -72,7 +72,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DefaultIndexPageHandler(h.static.path+"/index.html").ServeHTTP(w, r)
 	}
 
-	if (r.URL.Path == "/robots.txt") {
+	if r.URL.Path == "/robots.txt" {
 		fmt.Fprintf(w, "%s", h.robotsTxt)
 		return
 	}
