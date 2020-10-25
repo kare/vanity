@@ -221,6 +221,12 @@ func IndexPageHandler(index http.Handler) Option {
 	}
 }
 
+// DefaultRobotsTxt is the default value for /robots.txt file.
+var DefaultRobotsTxt = `user-agent: *
+Allow: /$
+Allow: /.static/*$
+Disallow: /`
+
 // RobotsTxt takes in option robotsTxt value. If value is empty, the value of DefaultRobotsTxt is used
 func RobotsTxt(robotsTxt string) Option {
 	return func(h http.Handler) {
