@@ -1,6 +1,7 @@
 
 name := kkn.fi/vanity
 golint := $(GOPATH)/bin/golint
+goimports := $(GOPATH)/bin/goimports
 
 .PHONY: build
 build:
@@ -16,6 +17,13 @@ lint: $(golint)
 
 $(golint):
 	GO111MODULE=off go get -u golang.org/x/lint/golint
+
+.PHONY: fmt
+fmt: $(goimports)
+	goimports -w *.go
+
+$(goimports):
+	GO111MODULE=off go get -u golang.org/x/lint/goimports
 
 .PHONY: cover
 cover:

@@ -1,5 +1,7 @@
 # kkn.fi/vanity
-[![Build Status](https://github.com/kare/vanity/workflows/test/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3ATest) ![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/kkn.fi/vanity) [![GoReportCard](https://goreportcard.com/badge/github.com/kare/vanity)](https://goreportcard.com/report/github.com/kare/vanity)
+[![Build Status](https://github.com/kare/vanity/workflows/Pull%20Request/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3APull%20Request)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/kkn.fi/vanity)
+[![GoReportCard](https://goreportcard.com/badge/github.com/kare/vanity)](https://goreportcard.com/report/github.com/kare/vanity)
     
 
 ## Concepts
@@ -25,6 +27,7 @@
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
 - Configurable logger which is fully compatible with standard log package. Stdout is default.
 - Supports index HTML file in the domain root and configurable static content directory (for images, CSS, and etc). 
+- Supports [robots.txt file](https://www.robotstxt.org)
 
 ## Installation
 ```
