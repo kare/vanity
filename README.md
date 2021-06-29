@@ -1,5 +1,5 @@
 # kkn.fi/vanity
-[![Build Status](https://github.com/kare/vanity/workflows/Pull%20Request/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3APull%20Request)
+[![Build Status](https://github.com/kare/vanity/workflows/CI/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3ACI)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/kkn.fi/vanity)
 [![GoReportCard](https://goreportcard.com/badge/github.com/kare/vanity)](https://goreportcard.com/report/github.com/kare/vanity)
     
