@@ -1,7 +1,13 @@
+LANG = en_US.UTF-8
+SHELL = /bin/bash
+.SHELLFLAGS = -eu -o pipefail -c # run '/bin/bash ... -c /bin/cmd'
+.DEFAULT_GOAL = build
 
-name := kkn.fi/vanity
-golint := $(GOPATH)/bin/golint
-goimports := $(GOPATH)/bin/goimports
+name = kkn.fi/vanity
+
+GOIMPORTS = $(GOPATH)/bin/goimports
+STATICCHECK = $(GOPATH)/bin/staticcheck
+GOLANGCI-LINT = $(GOPATH)/bin/golangci-lint
 
 .PHONY: build
 build:
@@ -11,19 +17,26 @@ build:
 test:
 	go test $(name)
 
-.PHONY: lint
-lint: $(golint)
-	golangci-lint run --config .golangci.yml ./...
+$(GOIMPORTS):
+	go install golang.org/x/tools/cmd/goimports@latest
 
-$(golint):
-	GO111MODULE=off go get -u golang.org/x/lint/golint
+$(GOLANGCI-LINT):
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1
 
-.PHONY: fmt
-fmt: $(goimports)
-	goimports -w *.go
+$(STATICCHECK):
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
-$(goimports):
-	GO111MODULE=off go get -u golang.org/x/lint/goimports
+fmt:
+	gofmt -w -s .
+
+goimports: fmt $(GOIMPORTS)
+	goimports -w .
+
+staticcheck: $(STATICCHECK)
+	staticcheck -go 1.16 ./...
+
+golangci-lint: $(GOLANGCI-LINT)
+	golangci-lint run ./...
 
 .PHONY: cover
 cover:
