@@ -14,7 +14,7 @@ linters:
     - gochecknoinits
     - gocyclo
     - goimports
-    - golint
+    - revive
     - gosimple
     - govet
     - ineffassign
