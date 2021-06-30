@@ -34,8 +34,6 @@ type (
 const (
 	// mPkgGoDev is the default module server by Google.
 	mPkgGoDev = "https://pkg.go.dev/"
-	// mSearchGocenterIo is a module server by JFrog.
-	mSearchGocenterIo = "https://search.gocenter.io/"
 	// mGitHub is not an actual module server, but a source code repository.
 	mGitHub = "https://github.com/"
 )
@@ -121,9 +119,6 @@ func (h *handler) browserURL(host, path string) string {
 		return stripSuffixSlash(h.moduleServerURL) + "/" + components[len(components)-1]
 	}
 	switch h.moduleServerURL {
-	case mSearchGocenterIo:
-		pkg := strings.ReplaceAll(path, "/", "~2F")
-		return fmt.Sprintf("%v%v%v/info", mSearchGocenterIo, host, pkg)
 	case mPkgGoDev:
 		fallthrough
 	default:
