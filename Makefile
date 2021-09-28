@@ -1,6 +1,6 @@
 LANG = en_US.UTF-8
 SHELL = /bin/bash
-.SHELLFLAGS = -eu -o pipefail -c # run '/bin/bash ... -c /bin/cmd'
+.SHELLFLAGS = --norc --noprofile -e -u -o pipefail -c
 .DEFAULT_GOAL = build
 
 name = kkn.fi/vanity
@@ -30,13 +30,13 @@ fmt:
 	gofmt -w -s .
 
 goimports: fmt $(GOIMPORTS)
-	goimports -w .
+	$(GOIMPORTS) -w .
 
 staticcheck: $(STATICCHECK)
-	staticcheck -go 1.17 ./...
+	$(STATICCHECK) -go 1.17 ./...
 
 golangci-lint: $(GOLANGCI-LINT)
-	golangci-lint run ./...
+	$(GOLANGCI-LINT) run ./...
 
 .PHONY: cover
 cover:
