@@ -1,0 +1,45 @@
+---
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: Test, Lint, Vet and Go fmt
+    strategy:
+      matrix:
+        go-version:
+          - 1.17.x
+        os:
+          - ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+      - name: Install Go
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Check source is Go fmted
+        run: make -f Makefile.ci check-fmt
+      - name: Check source is Go fmt simplified
+        run: make -f Makefile.ci check-fmt-simplify
+      - name: Run staticcheck
+        run: make -f Makefile.ci staticcheck
+      - uses: actions/cache@v2.1.6
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test
+        run: go test ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2.5.2
+        continue-on-error: true
+        with:
+          version: v1.41.1
