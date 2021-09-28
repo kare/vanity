@@ -1,3 +1,4 @@
+---
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -6,7 +7,7 @@ updates:
       interval: daily
       time: "03:00"
       timezone: Europe/Helsinki
-    open-pull-requests-limit: 10 
+    open-pull-requests-limit: 10
     commit-message:
       prefix: ci
       include: scope
