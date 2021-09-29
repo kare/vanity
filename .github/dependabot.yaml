@@ -16,8 +16,7 @@ updates:
     assignees:
       - kare
     labels:
-      - github-actions
-      - dependencies
+      - ci
   - package-ecosystem: gomod
     directory: "/"
     schedule:
@@ -32,5 +31,4 @@ updates:
     assignees:
       - kare
     labels:
-      - go
-      - dependencies
+      - build
