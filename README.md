@@ -1,7 +1,7 @@
 # kkn.fi/vanity
-[![Build Status](https://github.com/kare/vanity/workflows/CI/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3ACI)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/kkn.fi/vanity)
-[![GoReportCard](https://goreportcard.com/badge/github.com/kare/vanity)](https://goreportcard.com/report/github.com/kare/vanity)
+[![CI](https://github.com/kare/vanity/workflows/CI/badge.svg)](https://github.com/kare/vanity/actions?query=workflow%3ACI)
+[![Go Reference](https://pkg.go.dev/badge/kkn.fi/vanity.svg)](https://pkg.go.dev/kkn.fi/vanity)
+[![GoReportCard](https://goreportcard.com/badge/kkn.fi/vanity)](https://goreportcard.com/report/kkn.fi/vanity)
     
 
 ## Concepts
@@ -15,9 +15,8 @@
 ## Features
 - Redirects Go tool to VCS
 - Redirects browsers to pkg.go.dev module server by default. Module Server URL is configurable.
-- Module server URL options are.
+- Module server URL options are:
 	- https://pkg.go.dev/
-	- https://search.gocenter.io/
 	- https://github.com/YOUR_USERNAME/
 - Redirects HTTP to HTTPS
 - Automatic configuration of packages:
@@ -25,7 +24,7 @@
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
-- Configurable logger which is fully compatible with standard log package. Stdout is default.
+- Configurable logger which is fully compatible with standard `log` package. Default output goes to `stdout`.
 - Supports index HTML file in the domain root and configurable static content directory (for images, CSS, and etc). 
 - Supports [robots.txt file](https://www.robotstxt.org)
 
