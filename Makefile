@@ -1,13 +1,13 @@
-LANG = en_US.UTF-8
-SHELL = /bin/bash
-.SHELLFLAGS = --norc --noprofile -e -u -o pipefail -c
-.DEFAULT_GOAL = build
+LANG := en_US.UTF-8
+SHELL := /bin/bash
+.SHELLFLAGS := --norc --noprofile -e -u -o pipefail -c
+.DEFAULT_GOAL := build
 
-name = kkn.fi/vanity
+name := kkn.fi/vanity
 
-GOIMPORTS = $(GOPATH)/bin/goimports
-STATICCHECK = $(GOPATH)/bin/staticcheck
-GOLANGCI-LINT = $(GOPATH)/bin/golangci-lint
+GOIMPORTS := $(GOPATH)/bin/goimports
+STATICCHECK := $(GOPATH)/bin/staticcheck
+GOLANGCI-LINT := $(GOPATH)/bin/golangci-lint
 
 .PHONY: build
 build:
@@ -26,15 +26,19 @@ $(GOLANGCI-LINT):
 $(STATICCHECK):
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 
+.PHONY: fmt
 fmt:
 	gofmt -w -s .
 
+.PHONY: goimports
 goimports: fmt $(GOIMPORTS)
 	$(GOIMPORTS) -w .
 
+.PHONY: staticcheck
 staticcheck: $(STATICCHECK)
 	$(STATICCHECK) -go 1.17 ./...
 
+.PHONY: golangci-lint
 golangci-lint: $(GOLANGCI-LINT)
 	$(GOLANGCI-LINT) run ./...
 
