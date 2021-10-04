@@ -71,7 +71,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/robots.txt" {
-		fmt.Fprintf(w, "%s", h.robotsTxt)
+		_, _ = fmt.Fprintf(w, "%s", h.robotsTxt)
 		return
 	}
 
