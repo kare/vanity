@@ -193,7 +193,7 @@ func ModuleServerURL(moduleServerURL string) Option {
 }
 
 // StaticDir serves a file system directory over HTTP. Given path is the local
-// file system path to directory. Given urlPath is the path portition of the URL for the server.
+// file system path to directory. Given urlPath is the path portion of the URL for the server.
 func StaticDir(path, URLPath string) Option {
 	return func(h http.Handler) {
 		// TODO: path must be a readable directory or fail
