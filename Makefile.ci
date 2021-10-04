@@ -1,9 +1,9 @@
 LANG = en_US.UTF-8
 SHELL = /bin/bash
 .SHELLFLAGS := --norc --noprofile -e -u -o pipefail -c
-.DEFAULT_GOAL = all
+.DEFAULT_GOAL := all
 
-STATICCHECK = $(GOPATH)/bin/staticcheck
+STATICCHECK := $(GOPATH)/bin/staticcheck
 
 all: check-fmt check-fmt-simplify staticcheck
 
