@@ -36,7 +36,7 @@ goimports: fmt $(GOIMPORTS)
 
 .PHONY: staticcheck
 staticcheck: $(STATICCHECK)
-	$(STATICCHECK) -go 1.17 ./...
+	$(STATICCHECK) ./...
 
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI-LINT)
@@ -44,12 +44,16 @@ golangci-lint: $(GOLANGCI-LINT)
 
 .PHONY: cover
 cover:
-	go test -coverprofile=coverage.out $(name)
+	go test -coverprofile=coverage.out $(name)/...
 	go tool cover -html=coverage.out
 	@rm -f coverage.out
 
 .PHONY: heat
 heat:
-	go test -covermode=count -coverprofile=count.out $(name)
+	go test -covermode=count -coverprofile=count.out $(name)/...
 	go tool cover -html=count.out
 	@rm -f count.out
+
+.PHONY: clean
+clean:
+	go clean
