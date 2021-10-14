@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-go@v2.1.4
         with:
           go-version: ${{ matrix.go-version }}
+      - name: Go build
+        run: make -f Makefile.ci build
       - name: Check source is Go fmted
         run: make -f Makefile.ci check-fmt
       - name: Check source is Go fmt simplified

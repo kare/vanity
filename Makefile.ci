@@ -22,3 +22,7 @@ $(STATICCHECK):
 .PHONY: staticcheck
 staticcheck: $(STATICCHECK)
 	staticcheck ./...
+
+.PHONY: build
+build:
+	go build
