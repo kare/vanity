@@ -1,0 +1,13 @@
+---
+name: Release created
+on:
+  release:
+    types:
+      - created
+jobs:
+  released:
+    name: Released
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Go Module Index
+        run: curl --verbose "https://sum.golang.org/lookup/kkn.fi/vanity@${{ github.event.release.tag_name }}"
