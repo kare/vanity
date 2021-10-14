@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Run YAML Lint
-        uses: ibiqlik/action-yamllint@v3.0.4
+        uses: ibiqlik/action-yamllint@v3.1
         with:
           file_or_dir: .
           strict: true
