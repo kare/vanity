@@ -20,16 +20,12 @@ rules:
     level: error
   new-lines:
     type: unix
-  new-line-at-end-of-file:
-    level: error
+  new-line-at-end-of-file: disable
   hyphens:
     max-spaces-after: 1
   trailing-spaces:
     level: error
-  line-length:
-    max: 140
-    allow-non-breakable-words: true
-    allow-non-breakable-inline-mappings: true
+  line-length: disable
   comments:
     require-starting-space: false
     ignore-shebangs: false
