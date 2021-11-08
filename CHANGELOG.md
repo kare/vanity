@@ -1,7 +1,46 @@
 
 # Change Log
 
-## Release v1.0.0-alpha.6 - 2020-TODO
+## Release v1.0.0-beta.1 2021-10-14
+### Build
+- Remove Go version from staticcheck
+### Documentation
+- Remove redundant string concat
+### Test
+- Move ExampleHandler() test to vanity_test.go
+### Continuous Integration
+- Update yamllint rules
+- Update Go Module Index when Release is created
+- Bump ibiqlik/action-yamllint from 3.0.4 to 3.1
+- Add yamllint
+- Update Dependabot config
+- Update Makefile
+
+## Release v1.0.0-alpha.7 - 2021-10-04
+### Fixes
+- Remove deprecated search.gocenter.io
+### Build
+- Go 1.17 update
+- Update Makefile
+### Documentation
+- Fix typo
+- Update README
+### Style
+- Reformat YAML files for consistency
+### Continuous Integration
+- Use Go linters to check source code
+- Rename workflow from "Pull Request" to "CI"
+- Configure golangci-lint
+- Update Dependabot config
+- Reconfigure Dependabot labels
+- Fix GitHub Actions cache error
+- Fix actions/checkout version
+- Update CI Makefile: Add shell flags and set default goal
+- Update actions/setup-go from 2.1.3 to 2.1.4
+
+- Update workflow
+
+## Release v1.0.0-alpha.6 - 2020-06-28
 - Add support for GET /robots.txt
 
 ## Release v1.0.0-alpha.5 - 2020-10-15
