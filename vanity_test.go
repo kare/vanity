@@ -130,11 +130,6 @@ func TestBrowserGoDoc(t *testing.T) {
 			result:       "https://pkg.go.dev/kkn.fi/pkgabc/sub",
 		},
 		{
-			path:         "/pkgabc/sub/foo",
-			moduleServer: "https://pkg.go.dev",
-			result:       "https://pkg.go.dev/kkn.fi/pkgabc/sub",
-		},
-		{
 			path:         "/vanity",
 			moduleServer: "",
 			result:       "https://pkg.go.dev/kkn.fi/vanity",
