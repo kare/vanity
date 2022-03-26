@@ -77,7 +77,6 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, cmd) {
 			path = path[len(cmd):]
 		}
-		// redirect github.com/kare/pkg/sub -> github.com/kare/pkg
 		vcsroot := h.vcsURL
 		shortPath := pathComponents(path)
 		if len(shortPath) > 0 {
