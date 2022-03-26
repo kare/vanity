@@ -46,11 +46,6 @@ func DefaultIndexPageHandler(indexFilePath string) http.Handler {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Scheme == "http" {
-		r.URL.Scheme = "https"
-		http.Redirect(w, r, r.URL.String(), http.StatusMovedPermanently)
-		return
-	}
 	if r.Method != http.MethodGet {
 		status := http.StatusMethodNotAllowed
 		http.Error(w, http.StatusText(status), status)

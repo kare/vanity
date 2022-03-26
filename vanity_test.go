@@ -15,49 +15,6 @@ import (
 
 var addr = "https://kkn.fi"
 
-func TestRedirectFromHttpToHttps(t *testing.T) {
-	tests := []struct {
-		url      string
-		location string
-	}{
-		{
-			url:      "http://kkn.fi",
-			location: "https://kkn.fi",
-		},
-		{
-			url:      "http://kkn.fi/",
-			location: "https://kkn.fi/",
-		},
-		{
-			url:      "http://kkn.fi/pkg/sub/foo",
-			location: "https://kkn.fi/pkg/sub/foo",
-		},
-		{
-			url:      "http://kkn.fi/vanity",
-			location: "https://kkn.fi/vanity",
-		},
-		{
-			url:      "http://kkn.fi/vanity?go-get=1",
-			location: "https://kkn.fi/vanity?go-get=1",
-		},
-	}
-	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv := vanity.Handler(
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
-		)
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusMovedPermanently {
-			t.Errorf("expected response status 301, but got %v", res.StatusCode)
-		}
-		if test.location != res.Header.Get("Location") {
-			t.Errorf("expected response location '%v', but got '%v'", test.location, res.Header.Get("Location"))
-		}
-	}
-}
-
 func TestHTTPMethodsSupport(t *testing.T) {
 	tests := []struct {
 		method string
