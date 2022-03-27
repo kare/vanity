@@ -8,5 +8,5 @@ jobs:
   released:
     uses: kare/github/.github/workflows/go-release.yaml@0.3.4
     inputs:
-      go_modules_path: ${{ github.repository }}
+      go_module_path: kkn.fi/vanity
       version: ${{ github.event.release.tag_name }}
