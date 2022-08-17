@@ -4,8 +4,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
-      time: "03:00"
+      interval: weekly
       timezone: Europe/Helsinki
     open-pull-requests-limit: 5
     commit-message:
@@ -20,8 +19,7 @@ updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: daily
-      time: "03:00"
+      interval: weekly
       timezone: Europe/Helsinki
     open-pull-requests-limit: 5
     commit-message:
