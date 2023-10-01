@@ -137,7 +137,7 @@ func stripSuffixSlash(s string) string {
 // https://github.com/kare/).
 func Handler(opts ...Option) http.Handler {
 	v := &handler{
-		log:             log.New(os.Stdout, "", log.LstdFlags),
+		log:             log.New(os.Stderr, "", log.LstdFlags),
 		vcs:             "git",
 		moduleServerURL: mPkgGoDev,
 	}
