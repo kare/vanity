@@ -6,7 +6,7 @@ on:
       - created
 jobs:
   released:
-    uses: kare/github/.github/workflows/go-release.yaml@0.3.4
+    uses: kare/github/.github/workflows/go-release.yaml@main
     with:
       go_module_path: kkn.fi/vanity
       version: ${{ github.event.release.tag_name }}
