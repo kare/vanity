@@ -18,7 +18,7 @@
 - Module server URL options are:
 	- https://pkg.go.dev/
 	- https://github.com/YOUR_USERNAME/
-- Automatic configuration of packages:
+- Automatic configuration of cmd packages:
 	- All packages are redirected with full path to vcsroot.
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
