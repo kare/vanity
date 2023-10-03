@@ -29,7 +29,7 @@ fi
 ./release-validate-semver.bash "$version"
 
 # Create release commit
-git commit --allow-empty --message="release: vanity ${version}"
+git commit --allow-empty --message="release: kkn.fi/vanity v${version}"
 git push
 # Create tag
 git tag --message="Release ${version}" --annotate "v${version}"
