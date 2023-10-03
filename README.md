@@ -23,7 +23,7 @@
 	- Packages whose path is prefixed with "/cmd/" redirect automatically to
 	  vcsroot by stripping the "/cmd" prefix from the package path.
 	  Example: Redirect request "kkn.fi/cmd/tcpproxy" to "github.com/kare/tcpproxy"
-- Configurable logger which is fully compatible with standard `log` package. Default output goes to `stdout`.
+- Configurable logger which is fully compatible with standard `log` package. Default output goes to `stderr`.
 - Supports index HTML file in the domain root and configurable static content directory (for images, CSS, and etc). 
 - Supports [robots.txt file](https://www.robotstxt.org)
 
