@@ -7,7 +7,6 @@ name := kkn.fi/vanity
 
 GOIMPORTS := $(GOPATH)/bin/goimports
 STATICCHECK := $(GOPATH)/bin/staticcheck
-GOLANGCI-LINT := $(GOPATH)/bin/golangci-lint
 
 .PHONY: build
 build:
@@ -19,9 +18,6 @@ test:
 
 $(GOIMPORTS):
 	go install golang.org/x/tools/cmd/goimports@latest
-
-$(GOLANGCI-LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.45.2
 
 $(STATICCHECK):
 	go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -37,10 +33,6 @@ goimports: fmt $(GOIMPORTS)
 .PHONY: staticcheck
 staticcheck: $(STATICCHECK)
 	$(STATICCHECK) ./...
-
-.PHONY: golangci-lint
-golangci-lint: $(GOLANGCI-LINT)
-	$(GOLANGCI-LINT) run ./...
 
 .PHONY: cover
 cover:
