@@ -1,3 +1,5 @@
+//go:build !integration
+
 package vanity_test
 
 import (
@@ -52,9 +54,12 @@ func TestHTTPMethodsSupport(t *testing.T) {
 	for _, test := range tests {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != test.status {
@@ -80,11 +85,14 @@ func TestIndexPageNotFound(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.VCSURL("https://github.com/kare"),
 			vanity.Log(log.New(ioutil.Discard, "", 0)),
-			vanity.StaticDir("/not-found", "/.static/"),
+			vanity.StaticDir("/tmp", "/.static/"),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusNotFound {
@@ -148,10 +156,13 @@ func TestBrowserGoDoc(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.ModuleServerURL(test.moduleServer),
 			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusTemporaryRedirect {
@@ -211,11 +222,14 @@ func TestGoTool(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.VCS(test.vcs),
 			vanity.VCSURL(test.vcsURL),
 			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 
 		res := rec.Result()
@@ -248,10 +262,13 @@ func TestStaticDir(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.StaticDir("testdata", "dir"),
 			vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusOK {
@@ -279,10 +296,13 @@ func TestRobotsTxt(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv := vanity.Handler(
+		srv, err := vanity.Handler(
 			vanity.RobotsTxt(""),
 			//vanity.Log(log.New(ioutil.Discard, "", 0)),
 		)
+		if err != nil {
+			t.Error(err)
+		}
 		srv.ServeHTTP(rec, req)
 		res := rec.Result()
 		if res.StatusCode != http.StatusOK {
@@ -299,7 +319,7 @@ func TestRobotsTxt(t *testing.T) {
 
 func ExampleHandler() {
 	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
-	srv := vanity.Handler(
+	srv, err := vanity.Handler(
 		vanity.ModuleServerURL("https://pkg.go.dev"),
 		vanity.Log(errorLog),
 		vanity.VCSURL("https://github.com/kare"),
@@ -307,6 +327,9 @@ func ExampleHandler() {
 		vanity.StaticDir("testdata", "/.static/"),
 		vanity.IndexPageHandler(vanity.DefaultIndexPageHandler("testdata/index.html")),
 	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error while running vanity handler options: %v", err)
+	}
 	http.Handle("/", srv)
 	// Output:
 }

@@ -1,6 +1,7 @@
 package vanity
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -24,7 +25,7 @@ type (
 		fs      http.Handler
 	}
 	// Option represents a functional option for configuring the vanity middleware.
-	Option func(http.Handler)
+	Option func(http.Handler) error
 	// Logger describes functions available for logging purposes.
 	Logger interface {
 		Printf(format string, v ...interface{})
@@ -129,29 +130,32 @@ func stripSuffixSlash(s string) string {
 }
 
 // Handler is an HTTP middleware that redirects browsers to Go module server
-// (pkg.go.dev or similar) or Go tool to VCS repository. VCS repository is git
-// by default. VCS can be set with VCS(). Configurable Logger defaults to
-// os.Stdout. Logger can be configured with SetLogger(). Module server URL is
-// https://pkg.go.dev/ and it can be configured via ModuleServerURL() func.
-// VCSURL() func must be used to set VCS repository URL (such as
-// https://github.com/kare/).
-func Handler(opts ...Option) http.Handler {
+// (pkg.go.dev or similar) or Go cmd line tool to VCS repository. Handler can
+// be configured by providing options. VCS repository is git by default. VCS
+// can be set with VCS(). Configurable Logger defaults to os.Stderr. Logger can
+// be configured with SetLogger(). Module server URL is https://pkg.go.dev/ and
+// it can be configured via ModuleServerURL() func.  VCSURL() func must be used
+// to set VCS repository URL (such as https://github.com/kare/).
+func Handler(opts ...Option) (http.Handler, error) {
 	v := &handler{
 		log:             log.New(os.Stderr, "", log.LstdFlags),
 		vcs:             "git",
 		moduleServerURL: mPkgGoDev,
 	}
 	for _, option := range opts {
-		option(v)
+		if err := option(v); err != nil {
+			return nil, err
+		}
 	}
-	return v
+	return v, nil
 }
 
 // VCS sets the version control type.
 func VCS(vcs string) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.vcs = vcs
+		return nil
 	}
 }
 
@@ -164,34 +168,46 @@ func addSuffixSlash(s string) string {
 
 // VCSURL sets the VCS repository url address.
 func VCSURL(vcsURL string) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.vcsURL = addSuffixSlash(vcsURL)
+		return nil
 	}
 }
 
 // Log sets the logger used by vanity package's error logger.
 func Log(l Logger) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.log = l
+		return nil
 	}
 }
 
 // ModuleServerURL sets Go module server address for browser redirect.
 func ModuleServerURL(moduleServerURL string) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.moduleServerURL = addSuffixSlash(moduleServerURL)
+		return nil
 	}
 }
 
 // StaticDir serves a file system directory over HTTP. Given path is the local
 // file system path to directory. Given urlPath is the path portion of the URL for the server.
 func StaticDir(path, URLPath string) Option {
-	return func(h http.Handler) {
-		// TODO: path must be a readable directory or fail
+	return func(h http.Handler) error {
 		v := h.(*handler)
+		info, err := os.Stat(path)
+		if err != nil {
+			return fmt.Errorf("vanity: static dir path stat error: %w", err)
+		}
+		if !info.IsDir() {
+			return errors.New("vanity: static dir path is not a directory")
+		}
+		if info.Mode().Perm()&0444 != 0444 {
+			return errors.New("vanity: static dir path directory is not readable")
+		}
 		dir := http.Dir(path)
 		server := http.FileServer(dir)
 		v.static = &staticDir{
@@ -199,14 +215,16 @@ func StaticDir(path, URLPath string) Option {
 			uRLPath: URLPath,
 			fs:      http.StripPrefix(URLPath, server),
 		}
+		return nil
 	}
 }
 
 // IndexPageHandler sets a handler for index.html page.
 func IndexPageHandler(index http.Handler) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.indexPageHandler = index
+		return nil
 	}
 }
 
@@ -218,12 +236,13 @@ Disallow: /`
 
 // RobotsTxt takes in option robotsTxt value. If value is empty, the value of DefaultRobotsTxt is used
 func RobotsTxt(robotsTxt string) Option {
-	return func(h http.Handler) {
+	return func(h http.Handler) error {
 		v := h.(*handler)
 		if robotsTxt != "" {
 			v.robotsTxt = robotsTxt
 		} else {
 			v.robotsTxt = DefaultRobotsTxt
 		}
+		return nil
 	}
 }
