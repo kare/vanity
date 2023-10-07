@@ -54,7 +54,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 	for _, test := range tests {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
@@ -85,7 +85,7 @@ func TestIndexPageNotFound(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.VCSURL("https://github.com/kare"),
 			vanity.Log(log.New(io.Discard, "", 0)),
 			vanity.StaticDir("/tmp", "/.static/"),
@@ -156,7 +156,7 @@ func TestBrowserGoDoc(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.ModuleServerURL(test.moduleServer),
 			vanity.Log(log.New(io.Discard, "", 0)),
 		)
@@ -222,7 +222,7 @@ func TestGoTool(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.VCS(test.vcs),
 			vanity.VCSURL(test.vcsURL),
 			vanity.Log(log.New(io.Discard, "", 0)),
@@ -262,7 +262,7 @@ func TestStaticDir(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.StaticDir("testdata", "dir"),
 			vanity.Log(log.New(io.Discard, "", 0)),
 		)
@@ -296,7 +296,7 @@ func TestRobotsTxt(t *testing.T) {
 	for _, test := range tests {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.Handler(
+		srv, err := vanity.NewHandlerWithOptions(
 			vanity.RobotsTxt(""),
 			//vanity.Log(log.New(io.Discard, "", 0)),
 		)
@@ -319,7 +319,7 @@ func TestRobotsTxt(t *testing.T) {
 
 func ExampleHandler() {
 	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
-	srv, err := vanity.Handler(
+	srv, err := vanity.NewHandlerWithOptions(
 		vanity.ModuleServerURL("https://pkg.go.dev"),
 		vanity.Log(errorLog),
 		vanity.VCSURL("https://github.com/kare"),

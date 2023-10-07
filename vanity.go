@@ -136,7 +136,7 @@ func stripSuffixSlash(s string) string {
 // be configured with SetLogger(). Module server URL is https://pkg.go.dev/ and
 // it can be configured via ModuleServerURL() func.  VCSURL() func must be used
 // to set VCS repository URL (such as https://github.com/kare/).
-func Handler(opts ...Option) (http.Handler, error) {
+func NewHandlerWithOptions(opts ...Option) (http.Handler, error) {
 	v := &handler{
 		log:             log.New(os.Stderr, "", log.LstdFlags),
 		vcs:             "git",
