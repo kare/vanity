@@ -1,5 +1,3 @@
-//go:build integration
-
 package vanity_test
 
 import (
@@ -11,6 +9,9 @@ import (
 )
 
 func TestStaticDirIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	tests := []struct {
 		name    string
 		path    string
