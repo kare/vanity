@@ -13,8 +13,15 @@ build:
 	go build $(name)
 
 .PHONY: test
-test:
-	go test $(name)
+test: test-unit test-integration
+
+.PHONY: test-unit
+test-unit:
+	go test -v -short $(name)
+
+.PHONY: test-integration
+test-integration:
+	go test -v $(name)
 
 $(GOIMPORTS):
 	go install golang.org/x/tools/cmd/goimports@latest
