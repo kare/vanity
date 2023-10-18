@@ -45,13 +45,13 @@ staticcheck: $(STATICCHECK)
 cover:
 	go test -coverprofile=coverage.out $(name)/...
 	go tool cover -html=coverage.out
-	@rm -f coverage.out
+	@$(RM) -f coverage.out
 
 .PHONY: heat
 heat:
 	go test -covermode=count -coverprofile=count.out $(name)/...
 	go tool cover -html=count.out
-	@rm -f count.out
+	@$(RM) -f count.out
 
 .PHONY: clean
 clean:
