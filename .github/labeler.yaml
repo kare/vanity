@@ -1,0 +1,17 @@
+---
+documentation:
+  - "LICENSE*"
+  - "*.md"
+  - "**.md"
+ci:
+  - ".github/*"
+  - ".github/**"
+  - ".yamllint"
+test:
+  - "*_test.go"
+  - "**_test.go"
+build:
+  - ".gitignore"
+  - "Makefile"
+  - "go.*"
+  - "release*.bash"
