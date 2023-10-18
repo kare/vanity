@@ -4,7 +4,7 @@ package vanity_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -55,7 +55,7 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
 		rec := httptest.NewRecorder()
 		srv, err := vanity.Handler(
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
 			t.Error(err)
@@ -87,7 +87,7 @@ func TestIndexPageNotFound(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv, err := vanity.Handler(
 			vanity.VCSURL("https://github.com/kare"),
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(io.Discard, "", 0)),
 			vanity.StaticDir("/tmp", "/.static/"),
 		)
 		if err != nil {
@@ -158,7 +158,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
 		srv, err := vanity.Handler(
 			vanity.ModuleServerURL(test.moduleServer),
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
 			t.Error(err)
@@ -168,7 +168,7 @@ func TestBrowserGoDoc(t *testing.T) {
 		if res.StatusCode != http.StatusTemporaryRedirect {
 			t.Errorf("expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
 		}
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		if !strings.Contains(string(body), test.result) {
 			t.Errorf("expecting\n%v be contained in\n%v", test.result, string(body))
 		}
@@ -225,7 +225,7 @@ func TestGoTool(t *testing.T) {
 		srv, err := vanity.Handler(
 			vanity.VCS(test.vcs),
 			vanity.VCSURL(test.vcsURL),
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
 			t.Error(err)
@@ -233,7 +233,7 @@ func TestGoTool(t *testing.T) {
 		srv.ServeHTTP(rec, req)
 
 		res := rec.Result()
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
 		if !strings.Contains(string(body), expected) {
 			t.Errorf("expecting url '%v' body to contain html meta tag:\n%v, but got:\n%v", test.path, expected, string(body))
@@ -264,7 +264,7 @@ func TestStaticDir(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv, err := vanity.Handler(
 			vanity.StaticDir("testdata", "dir"),
-			vanity.Log(log.New(ioutil.Discard, "", 0)),
+			vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
 			t.Error(err)
@@ -275,7 +275,7 @@ func TestStaticDir(t *testing.T) {
 			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
 		}
 
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		expected := "<html>homepage</html>\n"
 		if string(body) != expected {
 			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
@@ -298,7 +298,7 @@ func TestRobotsTxt(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, test.url, nil)
 		srv, err := vanity.Handler(
 			vanity.RobotsTxt(""),
-			//vanity.Log(log.New(ioutil.Discard, "", 0)),
+			//vanity.Log(log.New(io.Discard, "", 0)),
 		)
 		if err != nil {
 			t.Error(err)
@@ -309,7 +309,7 @@ func TestRobotsTxt(t *testing.T) {
 			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
 		}
 
-		body, _ := ioutil.ReadAll(res.Body)
+		body, _ := io.ReadAll(res.Body)
 		expected := vanity.DefaultRobotsTxt
 		if string(body) != expected {
 			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
