@@ -85,7 +85,8 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		vcsroot := h.vcsURL
 		shortPath := pathComponents(path)
-		if len(shortPath) > 0 {
+		stripSubPackagesFromPath := len(shortPath) > 0
+		if stripSubPackagesFromPath {
 			vcsroot = h.vcsURL + shortPath[0]
 		}
 
