@@ -50,19 +50,24 @@ func TestHTTPMethodsSupport(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
-		rec := httptest.NewRecorder()
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.Log(log.New(io.Discard, "", 0)),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != test.status {
-			t.Errorf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.StatusCode)
-		}
+		test := test
+		t.Run(test.method, func(t *testing.T) {
+			t.Parallel()
+
+			req := httptest.NewRequest(test.method, addr+"/gist?go-get=1", nil)
+			rec := httptest.NewRecorder()
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.Log(log.New(io.Discard, "", 0)),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
+			res := rec.Result()
+			if res.StatusCode != test.status {
+				t.Errorf("Expecting status code %v for method '%v', but got %v", test.status, test.method, res.StatusCode)
+			}
+		})
 	}
 }
 
@@ -81,21 +86,26 @@ func TestIndexPageNotFound(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.VCSURL("https://github.com/kare"),
-			vanity.Log(log.New(io.Discard, "", 0)),
-			vanity.StaticDir("/tmp", "/.static/"),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusNotFound {
-			t.Errorf("%v: expected response status 404, but got %v\n", test.name, res.StatusCode)
-		}
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, test.url, nil)
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.VCSURL("https://github.com/kare"),
+				vanity.Log(log.New(io.Discard, "", 0)),
+				vanity.StaticDir("/tmp", "/.static/"),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
+			res := rec.Result()
+			if res.StatusCode != http.StatusNotFound {
+				t.Errorf("%v: expected response status 404, but got %v\n", test.name, res.StatusCode)
+			}
+		})
 	}
 }
 
@@ -152,24 +162,29 @@ func TestBrowserGoDoc(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.ModuleServerURL(test.moduleServer),
-			vanity.Log(log.New(io.Discard, "", 0)),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusTemporaryRedirect {
-			t.Errorf("expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
-		}
-		body, _ := io.ReadAll(res.Body)
-		if !strings.Contains(string(body), test.result) {
-			t.Errorf("expecting\n%v be contained in\n%v", test.result, string(body))
-		}
+		test := test
+		t.Run(test.path, func(t *testing.T) {
+			t.Parallel()
+
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.ModuleServerURL(test.moduleServer),
+				vanity.Log(log.New(io.Discard, "", 0)),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
+			res := rec.Result()
+			if res.StatusCode != http.StatusTemporaryRedirect {
+				t.Errorf("expected response status %v, but got %v", http.StatusTemporaryRedirect, res.StatusCode)
+			}
+			body, _ := io.ReadAll(res.Body)
+			if !strings.Contains(string(body), test.result) {
+				t.Errorf("expecting\n%v be contained in\n%v", test.result, string(body))
+			}
+		})
 	}
 }
 
@@ -218,28 +233,33 @@ func TestGoTool(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.VCS(test.vcs),
-			vanity.VCSURL(test.vcsURL),
-			vanity.Log(log.New(io.Discard, "", 0)),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
+		test := test
+		t.Run(test.path, func(t *testing.T) {
+			t.Parallel()
 
-		res := rec.Result()
-		body, _ := io.ReadAll(res.Body)
-		expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
-		if !strings.Contains(string(body), expected) {
-			t.Errorf("expecting url '%v' body to contain html meta tag:\n%v, but got:\n%v", test.path, expected, string(body))
-		}
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, addr+test.path, nil)
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.VCS(test.vcs),
+				vanity.VCSURL(test.vcsURL),
+				vanity.Log(log.New(io.Discard, "", 0)),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
 
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("expected response status 200, but got %v", res.StatusCode)
-		}
+			res := rec.Result()
+			body, _ := io.ReadAll(res.Body)
+			expected := fmt.Sprintf(`<meta name="go-import" content="%v">`, test.result)
+			if !strings.Contains(string(body), expected) {
+				t.Errorf("expecting url '%v' body to contain html meta tag:\n%v, but got:\n%v", test.path, expected, string(body))
+			}
+
+			if res.StatusCode != http.StatusOK {
+				t.Errorf("expected response status 200, but got %v", res.StatusCode)
+			}
+		})
 	}
 }
 
@@ -258,60 +278,76 @@ func TestStaticDir(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.StaticDir("testdata", "dir"),
-			vanity.Log(log.New(io.Discard, "", 0)),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
-		}
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 
-		body, _ := io.ReadAll(res.Body)
-		expected := "<html>homepage</html>\n"
-		if string(body) != expected {
-			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
-		}
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, test.url, nil)
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.StaticDir("testdata", "dir"),
+				vanity.Log(log.New(io.Discard, "", 0)),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
+			res := rec.Result()
+			if res.StatusCode != http.StatusOK {
+				t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
+			}
+
+			body, _ := io.ReadAll(res.Body)
+			expected := "<html>homepage</html>\n"
+			if string(body) != expected {
+				t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
+			}
+		})
 	}
 }
 
 func TestRobotsTxt(t *testing.T) {
 	tests := []struct {
-		name string
-		url  string
+		name  string
+		value string
 	}{
 		{
-			name: "GET /robots.txt",
-			url:  "https://kkn.fi/robots.txt",
+			name:  "GET default /robots.txt",
+			value: ``,
+		},
+		{
+			name:  "GET custom /robots.txt",
+			value: `robots are here`,
 		},
 	}
 	for _, test := range tests {
-		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, test.url, nil)
-		srv, err := vanity.NewHandlerWithOptions(
-			vanity.RobotsTxt(""),
-			//vanity.Log(log.New(io.Discard, "", 0)),
-		)
-		if err != nil {
-			t.Error(err)
-		}
-		srv.ServeHTTP(rec, req)
-		res := rec.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
-		}
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 
-		body, _ := io.ReadAll(res.Body)
-		expected := vanity.DefaultRobotsTxt
-		if string(body) != expected {
-			t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
-		}
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, "https://kkn.fi/robots.txt", nil)
+			srv, err := vanity.NewHandlerWithOptions(
+				vanity.RobotsTxt(test.value),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			srv.ServeHTTP(rec, req)
+			res := rec.Result()
+			if res.StatusCode != http.StatusOK {
+				t.Errorf("%v: expected response status 200, but got %v", test.name, res.StatusCode)
+			}
+
+			body, _ := io.ReadAll(res.Body)
+			expected := vanity.DefaultRobotsTxt
+			if test.value != "" {
+				expected = test.value
+			}
+			if string(body) != expected {
+				t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
+			}
+		})
 	}
 }
 
@@ -319,9 +355,9 @@ func ExampleHandler() {
 	errorLog := log.New(os.Stderr, "vanity: ", log.Ldate|log.Ltime|log.LUTC)
 	srv, err := vanity.NewHandlerWithOptions(
 		vanity.ModuleServerURL("https://pkg.go.dev"),
-		vanity.Log(errorLog),
 		vanity.VCSURL("https://github.com/kare"),
 		vanity.VCS("git"),
+		vanity.Log(errorLog),
 		vanity.StaticDir("testdata", "/.static/"),
 		vanity.IndexPageHandler(vanity.DefaultIndexPageHandler("testdata/index.html")),
 	)
