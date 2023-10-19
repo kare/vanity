@@ -234,7 +234,8 @@ Allow: /$
 Allow: /.static/*$
 Disallow: /`
 
-// RobotsTxt takes in option robotsTxt value. If value is empty, the value of DefaultRobotsTxt is used
+// RobotsTxt takes in a value for robots.txt. If value is empty, the value of
+// `DefaultRobotsTxt` is used
 func RobotsTxt(robotsTxt string) Option {
 	return func(h http.Handler) error {
 		v := h.(*handler)
