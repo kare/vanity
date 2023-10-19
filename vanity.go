@@ -14,6 +14,7 @@ type (
 		log              Logger
 		vcs              string
 		vcsURL           string
+		host             string
 		moduleServerURL  string
 		static           *staticDir
 		indexPageHandler http.Handler
@@ -71,6 +72,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	host := r.Host
+	if h.host != "" {
+		host = h.host
+	}
 	// Respond to Go tool with vcs info meta tag
 	if r.FormValue("go-get") == "1" {
 		path := r.URL.Path
@@ -84,7 +89,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			vcsroot = h.vcsURL + shortPath[0]
 		}
 
-		importRoot := strings.TrimSuffix(r.Host+r.URL.Path, "/")
+		importRoot := strings.TrimSuffix(host+r.URL.Path, "/")
 		metaTag := fmt.Sprintf(`<meta name="go-import" content="%v %v %v">`, importRoot, h.vcs, vcsroot)
 		if _, err := w.Write([]byte(metaTag)); err != nil {
 			h.log.Printf("vanity: i/o error writing go tool http response: %v", err)
@@ -93,7 +98,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect browsers to Go module site.
-	url := h.browserURL(r.Host, r.URL.Path)
+	url := h.browserURL(host, r.URL.Path)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -171,6 +176,16 @@ func VCSURL(vcsURL string) Option {
 	return func(h http.Handler) error {
 		v := h.(*handler)
 		v.vcsURL = addSuffixSlash(vcsURL)
+		return nil
+	}
+}
+
+// Host sets the hostname of the vanity server. Host defaults to HTTP request
+// hostname.
+func Host(host string) Option {
+	return func(h http.Handler) error {
+		v := h.(*handler)
+		v.host = host
 		return nil
 	}
 }
