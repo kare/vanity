@@ -209,6 +209,8 @@ func ModuleServerURL(moduleServerURL string) Option {
 	}
 }
 
+var ErrNotReadable = errors.New("vanity: static dir path directory is not readable")
+
 // StaticDir serves a file system directory over HTTP. Given path is the local
 // file system path to directory. Given urlPath is the path portion of the URL for the server.
 func StaticDir(path, URLPath string) Option {
@@ -221,8 +223,24 @@ func StaticDir(path, URLPath string) Option {
 		if !info.IsDir() {
 			return errors.New("vanity: static dir path is not a directory")
 		}
-		if info.Mode().Perm()&0444 != 0444 {
-			return errors.New("vanity: static dir path directory is not readable")
+		const (
+			read = 4
+			// write = 2
+			// exec = 1
+		)
+		const (
+			readUser  = read << 6
+			readGroup = read << 3
+			readOther = read << 0
+		)
+		if info.Mode().Perm()&readOther == 0 {
+			return ErrNotReadable
+		}
+		if info.Mode().Perm()&readGroup == 0 {
+			return ErrNotReadable
+		}
+		if info.Mode().Perm()&readUser == 0 {
+			return ErrNotReadable
 		}
 		dir := http.Dir(path)
 		server := http.FileServer(dir)
