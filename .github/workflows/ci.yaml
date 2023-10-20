@@ -10,9 +10,11 @@ on:
   push:
     branches:
       - main
+      - feature/**/*
   pull_request:
     branches:
       - main
+      - feature/**/*
 jobs:
   ci:
     uses: kare/github/.github/workflows/go-pkg-ci.yaml@main
