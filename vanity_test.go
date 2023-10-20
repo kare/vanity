@@ -385,7 +385,16 @@ func TestStaticDir(t *testing.T) {
 			}
 
 			body, _ := io.ReadAll(res.Body)
-			expected := "<html>homepage</html>\n"
+			expected := `<!doctype html>
+<html lang="en">
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <p>homepage</p>
+  </body>
+</html>
+`
 			if string(body) != expected {
 				t.Errorf("%v: expecting body to match:\n'%v', but got:\n'%s'", test.name, expected, body)
 			}
