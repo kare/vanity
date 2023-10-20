@@ -1,0 +1,21 @@
+---
+changelog:
+  categories:
+    - title: New Features
+      labels:
+        - enhancement
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Continuous Integration
+      labels:
+        - ci
+    - title: Testing
+      labels:
+        - test
+    - title: Build
+      labels:
+        - build
+    - title: Other Changes
+      labels:
+        - "*"
