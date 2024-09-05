@@ -1,17 +1,30 @@
 ---
 documentation:
-  - "LICENSE*"
-  - "*.md"
-  - "**.md"
+- changed-files:
+  - any-glob-to-any-file:
+    - "LICENSE*"
+    - "*.md"
+    - "**.md"
 ci:
-  - ".github/*"
-  - ".github/**"
-  - ".yamllint"
+- changed-files:
+  - any-glob-to-any-file:
+    - ".github/*"
+    - ".github/**"
 test:
-  - "*_test.go"
-  - "**_test.go"
+- changed-files:
+  - any-glob-to-any-file:
+    - "**/*_test.go"
 build:
-  - ".gitignore"
-  - "Makefile"
-  - "go.*"
-  - "release*.bash"
+- changed-files:
+  - any-glob-to-any-file:
+    - ".gitignore"
+    - "Makefile"
+    - "go.*"
+    - "release*.bash"
+refactor:
+- changed-files:
+  - any-glob-to-any-file:
+    - "**/*.go"
+feature:
+  - head-branch: ['^feature']
+
