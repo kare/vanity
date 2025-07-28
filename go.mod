@@ -1,3 +1,3 @@
 module kkn.fi/vanity
 
-go 1.19
+go 1.24
