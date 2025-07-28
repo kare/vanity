@@ -71,19 +71,19 @@ func TestHTTPMethodsSupport(t *testing.T) {
 	}
 }
 
-func TestHostOptionGoTool(t *testing.T) {
+func TestDomainOptionGoTool(t *testing.T) {
 	tests := []struct {
 		name   string
 		url    string
 		result string
 	}{
 		{
-			name:   "host go.kkn.fi/vanity redirects to kkn.fi/vanity",
+			name:   "domain go.kkn.fi/vanity redirects to kkn.fi/vanity",
 			url:    "https://go.kkn.fi/vanity?go-get=1",
 			result: "kkn.fi/vanity git https://github.com/kare/vanity",
 		},
 		{
-			name:   "hostname go.kkn.fi/infra redirects to kkn.fi/infra",
+			name:   "domain go.kkn.fi/infra redirects to kkn.fi/infra",
 			url:    "https://go.kkn.fi/infra?go-get=1",
 			result: "kkn.fi/infra git https://github.com/kare/infra",
 		},
@@ -97,7 +97,7 @@ func TestHostOptionGoTool(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, test.url, nil)
 			srv, err := vanity.NewHandlerWithOptions(
 				vanity.VCSURL("https://github.com/kare"),
-				vanity.Host("kkn.fi"),
+				vanity.Domain("kkn.fi"),
 			)
 			if err != nil {
 				t.Error(err)
@@ -114,19 +114,19 @@ func TestHostOptionGoTool(t *testing.T) {
 		})
 	}
 }
-func TestHostOptionBrowserGoDoc(t *testing.T) {
+func TestDomainOptionBrowserGoDoc(t *testing.T) {
 	tests := []struct {
 		name   string
 		url    string
 		result string
 	}{
 		{
-			name:   "host go.kkn.fi/vanity redirects to kkn.fi/vanity",
+			name:   "domain go.kkn.fi/vanity redirects to kkn.fi/vanity",
 			url:    "https://go.kkn.fi/vanity",
 			result: `<a href="https://pkg.go.dev/kkn.fi/vanity">Temporary Redirect</a>.`,
 		},
 		{
-			name:   "hostname go.kkn.fi/infra redirects to kkn.fi/infra",
+			name:   "domain go.kkn.fi/infra redirects to kkn.fi/infra",
 			url:    "https://go.kkn.fi/infra",
 			result: `<a href="https://pkg.go.dev/kkn.fi/infra">Temporary Redirect</a>.`,
 		},
@@ -140,7 +140,7 @@ func TestHostOptionBrowserGoDoc(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, test.url, nil)
 			srv, err := vanity.NewHandlerWithOptions(
 				vanity.VCSURL("https://github.com/kare"),
-				vanity.Host("kkn.fi"),
+				vanity.Domain("kkn.fi"),
 			)
 			if err != nil {
 				t.Error(err)
@@ -453,7 +453,7 @@ func ExampleHandler() {
 		vanity.ModuleServerURL("https://pkg.go.dev"),
 		vanity.VCSURL("https://github.com/kare"),
 		vanity.VCS("git"),
-		vanity.Host("go.kkn.fi"),
+		vanity.Domain("go.kkn.fi"),
 		vanity.Log(errorLog),
 		vanity.StaticDir("testdata", "/.static/"),
 		vanity.IndexPageHandler(vanity.DefaultIndexPageHandler("testdata/index.html")),
