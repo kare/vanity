@@ -1,5 +1,7 @@
 ---
 name: Release created
+permissions:
+  contents: read
 on:
   release:
     types:
